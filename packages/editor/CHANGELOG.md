@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.12
+
+API change.
+
+### Fixed
+- The **Image component** no longer shows extra space below the image, and linked images now size the same as unlinked ones. Alignment (left, center, right) still works.
+
 ## 0.4.11
 
 API changes.
