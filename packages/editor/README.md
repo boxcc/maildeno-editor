@@ -11,45 +11,6 @@ npm install @maildeno/editor
 One package, no peer dependencies, no CSS import. The editor injects its own
 styling when it mounts.
 
-## Minimal usage Vue
-
-```vue
-<script setup lang="ts">
-import { EmailEditor } from "@maildeno/editor";
-</script>
-
-<template>
-  <EmailEditor />
-</template>
-```
-
-## Props and events
-
-| Prop | Type |
-| --- | --- |
-| `templateId` | `string` |
-| `storageAdapter` | `EditorStorageAdapter` |
-| `theme` | `{ primaryColor?, surfaceColor? }` |
-| `capabilities` | `{ export?: Array<"html"\|"mjml"\|"react"\|"json"> }` |
-| `onSendTestEmail` | `(payload) => Promise<void>` |
-| `brandName` | `string` |
-| `versions` | `boolean` |
-| `assistant` | `AssistantMount` |
-
-| Event | Payload |
-| --- | --- |
-| `@save` | `{ templateId: string \| null }` |
-
-Reading content out uses a template ref:
-
-```ts
-const editor = ref();
-editor.value.getHtml("prune");
-editor.value.getMjml();
-editor.value.getReactEmail();
-editor.value.getJson();
-```
-
 ## Minimal usage React
 
 ```tsx
@@ -63,22 +24,50 @@ export default function Editor() {
   useEffect(() => {
     let cancelled = false;
 
-    init({ container: container.current! }).then((h) => {
-      // React 18 StrictMode mounts effects twice in development. Without
-      // this guard the first instance is orphaned and never destroyed.
-      if (cancelled) return h.destroy();
-      handle.current = h;
-    });
+    const setup = async () => {
+      try {
+        const editor = await init({
+          container: container.current!,
+          capabilities: {
+            export: ["html", "mjml", "json"],
+          },
+          onSave: ({ templateId }) => {
+            console.log("Saved", templateId);
+
+            const html = handle.current?.getHtml(); // handle.current?.getReactEmail() or handle.current?.getMjml()
+            console.log("HTML:", html);
+          },
+        });
+
+        if (cancelled) {
+          editor.destroy();
+          return;
+        }
+
+        handle.current = editor;
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to initialize Maildeno editor:", error);
+        }
+      }
+    };
+
+    setup();
 
     return () => {
       cancelled = true;
       handle.current?.destroy();
+      handle.current = null;
     };
   }, []);
 
   return <div ref={container} />;
 }
 ```
+
+> This mounts **read-only** — no `onSave` means no Save button. See
+> [Persisting which template is open](#persisting-which-template-is-open) to
+> enable saving.
 
 ## `EditorHandle`
 
@@ -87,7 +76,7 @@ export default function Editor() {
 | Member | Description |
 | --- | --- |
 | `element` | The underlying `<maildeno-editor>` DOM node. |
-| `on(event, fn)` / `off(event, fn)` | Subscribe to editor events. Currently `"save"`. |
+| `on(event, fn)` / `off(event, fn)` | Subscribe to editor events. Currently `"save"`. Only fires if `onSave` was passed to `init()` at mount time — subscribing after the fact doesn't retroactively enable saving or reveal a button that was never rendered. |
 | `setTheme(theme)` | Re-theme live, any time after mount. |
 | `getHtml(mode?)` | Current template as an HTML email string, or `null` if empty. |
 | `getMjml(mode?)` | Current template as MJML. |
@@ -124,6 +113,54 @@ if (!html) return; // nothing built yet
 ```
 
 `getJson()` returns the portable template format — `template_id`, `template_name`, `canvas`, `rows`, `schema_version`. Store it and pass it back via your adapter's `loadTemplate` to restore exactly.
+
+## Minimal usage Vue
+
+```vue
+<script setup lang="ts">
+import { EmailEditor } from "@maildeno/editor";
+</script>
+
+<template>
+  <EmailEditor />
+</template>
+```
+
+## Props and events
+
+| Prop | Type |
+| --- | --- |
+| `templateId` | `string` |
+| `storageAdapter` | `EditorStorageAdapter` |
+| `theme` | `{ primaryColor?, surfaceColor? }` |
+| `capabilities` | `{ export?: Array<"html"\|"mjml"\|"react"\|"json"> }` |
+| `onSendTestEmail` | `(payload) => Promise<void>` |
+| `brandName` | `string` |
+| `versions` | `boolean` |
+| `assistant` | `AssistantMount` |
+
+| Event | Payload |
+| --- | --- |
+| `@save` | `{ templateId: string \| null }` |
+
+> **`@save`'s presence controls whether the Save button renders at all.** Bind a
+> listener — `@save="..."` on the Vue component, or `onSave` in `init()`'s config
+> object — and the Save button, save-status indicator, and autosave timer all
+> appear. Omit it and the editor mounts **read-only**, useful for previews or
+> guest embeds. (Vue compiles `@save="fn"` down to an `onSave` prop internally,
+> so this is the same mechanism on both paths, not two separate features.) See
+> [Persisting which template is open](#persisting-which-template-is-open) below.
+
+Reading content out uses a template ref:
+
+```ts
+const editor = ref();
+editor.value.getHtml("prune");
+editor.value.getMjml();
+editor.value.getReactEmail();
+editor.value.getJson();
+```
+
 
 ## Feature reference
 
@@ -379,15 +416,23 @@ Call these **before** the editor mounts.
 
 ### Persisting which template is open
 
-The editor doesn't own that decision. Listen for `save` and store the id however you track it:
+This requires `onSave` to have been passed to `init()` at mount time (or `@save`
+bound on the Vue component) — that's what reveals the Save button in the first
+place. `handle.on("save", ...)` added after mount subscribes to an event that
+will never fire if `onSave` wasn't part of the original `init()` call.
 
 ```ts
-handle.on("save", ({ templateId }) => {
-  router.replace(`/editor/${templateId}`);   // or your DB, or app state
+init({
+  container: "#editor",
+  onSave: ({ templateId }) => {
+    router.replace(`/editor/${templateId}`);   // or your DB, or app state
+  },
 });
 ```
 
-Pass it back as `templateId` next time to reopen.
+The editor doesn't own persisting *which* template is open beyond that — store
+the id however your app already tracks routes or state, and pass it back as
+`templateId` next time to reopen the same document.
 
 ### Practical notes
 
