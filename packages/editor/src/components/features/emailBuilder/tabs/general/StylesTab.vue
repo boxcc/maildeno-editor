@@ -227,7 +227,7 @@
         label="Canvas Width (px)"
         :model-value="canvasStyles.width"
         :min="360"
-        :max="700"
+        :max="720"
         :step="10"
         unit="px"
         @update:model-value="onWidthChange"
