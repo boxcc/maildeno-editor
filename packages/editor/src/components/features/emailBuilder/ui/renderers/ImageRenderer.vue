@@ -5,10 +5,15 @@
       :href="resolvedLink"
       target="_blank"
       rel="noopener noreferrer nofollow"
-      style="text-decoration: none"
+      :style="{
+        display: 'inline-block',
+        width: `${p.width}%`,
+        textDecoration: 'none',
+        lineHeight: 0,
+      }"
       @click="handleLinkClick"
     >
-      <img :src="resolvedSrc" :alt="resolvedAlt" :style="imageStyles" />
+      <img :src="resolvedSrc" :alt="resolvedAlt" :style="linkedImageStyles" />
     </a>
 
     <img v-else :src="resolvedSrc" :alt="resolvedAlt" :style="imageStyles" />
@@ -78,6 +83,8 @@ const containerStyles = computed(() => ({
   margin: `${p.value.margin.top}px ${p.value.margin.right}px ${p.value.margin.bottom}px ${p.value.margin.left}px`,
   padding: `${p.value.padding.top}px ${p.value.padding.right}px ${p.value.padding.bottom}px ${p.value.padding.left}px`,
   textAlign: p.value.align,
+  lineHeight: 0,
+  fontSize: 0,
 }));
 
 const imageStyles = computed<CSSProperties>(() => ({
@@ -87,6 +94,12 @@ const imageStyles = computed<CSSProperties>(() => ({
   borderRadius: `${p.value.borderRadius}px`,
   border: `${p.value.border.width}px ${p.value.border.style} ${p.value.border.color}`,
   display: "inline-block",
+  verticalAlign: "top", // or "middle" / "bottom"
+}));
+
+const linkedImageStyles = computed<CSSProperties>(() => ({
+  ...imageStyles.value,
+  width: "100%",
 }));
 
 // ─── Visibility ───────────────────────────────────────────────────────────────
