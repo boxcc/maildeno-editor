@@ -1,3 +1,4 @@
+import type { BorderValue } from "@/utils/border";
 import type { BorderRadius } from "@/utils/borderRadius";
 /**
  * useComponentStyleEditor
@@ -38,10 +39,7 @@ export interface BackgroundValue {
 
 export type EditMode = "desktop" | "mobile";
 
-export interface BorderProps {
-  width: number;
-  color: string;
-  style: "solid" | "dashed" | "dotted";
+export interface BorderProps extends BorderValue {
   radius?: BorderRadius;
 }
 
@@ -211,9 +209,17 @@ export function useComponentStyleEditor(
     const mb = component.value?.props.mobile?.border;
     if (!mb) return false;
     const db = component.value?.props.border;
-    const keys: (keyof BorderProps)[] = ["width", "color", "style", "radius"];
+    const keys: (keyof BorderProps)[] = [
+      "width",
+      "color",
+      "style",
+      "radius",
+      "sides",
+    ];
     return keys.some(
-      (k) => mb[k] !== undefined && mb[k] !== null && mb[k] !== db?.[k],
+      (k) =>
+        (k === "sides" || (mb[k] !== undefined && mb[k] !== null)) &&
+        JSON.stringify(mb[k]) !== JSON.stringify(db?.[k]),
     );
   };
 

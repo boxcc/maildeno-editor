@@ -1,3 +1,4 @@
+import type { BorderValue } from "@/utils/border";
 import type { BorderRadius } from "@/utils/borderRadius";
 // types/emailBuilder.ts
 // ─── Shared primitives ────────────────────────────────────────────────────────
@@ -8,10 +9,7 @@ export interface Padding {
   bottom: number;
   left: number;
 }
-export interface Border {
-  width: number;
-  style: string;
-  color: string;
+export interface Border extends BorderValue {
   radius: BorderRadius;
 }
 export interface GradientStop {

@@ -397,6 +397,7 @@
 </template>
 
 <script setup lang="ts">
+import { borderStyles } from "@/utils/border";
 import { radiusToCss } from "@/utils/borderRadius";
 import { ref, computed, nextTick, watch, onMounted, onUnmounted } from "vue";
 import { useTeleportTarget } from "@/composables/ui/useTeleportTarget";
@@ -720,7 +721,7 @@ const rowStyles = computed(() => {
     padding: `${r.padding.top}px ${r.padding.right}px ${r.padding.bottom}px ${r.padding.left}px`,
     minHeight: r.minHeight ? `${r.minHeight}px` : "auto",
     alignItems: "stretch",
-    border: `${r.border.width}px ${r.border.style} ${r.border.color}`,
+    ...borderStyles(r.border),
     borderRadius: radiusToCss(r.border.radius),
     overflow: "hidden",
   };

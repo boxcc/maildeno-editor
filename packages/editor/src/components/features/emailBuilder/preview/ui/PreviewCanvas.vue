@@ -147,6 +147,7 @@
 </template>
 
 <script setup lang="ts">
+import { borderStyles } from "@/utils/border";
 import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // components/preview/PreviewCanvas.vue
 //
@@ -283,7 +284,7 @@ function rowStyles(row: any): Record<string, string> {
 
   // Border is optional on the row but CanvasRow always reads it.
   if (row.border) {
-    styles.border = `${row.border.width ?? 0}px ${row.border.style ?? "solid"} ${row.border.color ?? "transparent"}`;
+    Object.assign(styles, borderStyles(row.border));
     styles.borderRadius = radiusToCss(row.border.radius ?? 0);
   }
 
@@ -339,7 +340,7 @@ function columnStyles(col: any, row: any): Record<string, string> {
   }
 
   if (col.border) {
-    styles.border = `${col.border.width ?? 0}px ${col.border.style ?? "solid"} ${col.border.color ?? "transparent"}`;
+    Object.assign(styles, borderStyles(col.border));
     styles.borderRadius = radiusToCss(radius);
   }
 

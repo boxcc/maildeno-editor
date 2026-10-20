@@ -192,6 +192,7 @@
 </template>
 
 <script setup lang="ts">
+import { borderStyles } from "@/utils/border";
 import { radiusToCss } from "@/utils/borderRadius";
 import { computed, type CSSProperties } from "vue";
 
@@ -333,7 +334,7 @@ function imageStyle(p: any) {
     width: (p?.width || 100) + "%",
     height: p?.height || "auto",
     borderRadius: radiusToCss(p?.borderRadius || 0),
-    border: `${p?.border?.width || 0}px ${p?.border?.style || "solid"} ${p?.border?.color || "#000000"}`,
+    ...borderStyles(p?.border),
     display: "block",
     margin:
       align === "center" ? "0 auto" : align === "right" ? "0 0 0 auto" : "0",
@@ -359,7 +360,7 @@ function videoThumbnailStyle(p: any): CSSProperties {
     position: "relative",
     display: "inline-block",
     borderRadius: radiusToCss(p?.borderRadius || 0),
-    border: `${p?.border?.width || 0}px ${p?.border?.style || "solid"} ${p?.border?.color || "#000000"}`,
+    ...borderStyles(p?.border),
     overflow: "hidden",
     marginLeft: align === "center" ? "auto" : align === "right" ? "auto" : "0",
     marginRight: align === "center" ? "auto" : "0",
@@ -412,7 +413,7 @@ function buttonStyle(p: any) {
     letterSpacing: `${p?.letterSpacing ?? 0}px`,
     padding: `${p?.padding?.top ?? 8}px ${p?.padding?.right ?? 16}px ${p?.padding?.bottom ?? 8}px ${p?.padding?.left ?? 16}px`,
     borderRadius: radiusToCss(p?.borderRadius || 4),
-    border: `${p?.border?.width || 0}px ${p?.border?.style || "solid"} ${p?.border?.color || "#000000"}`,
+    ...borderStyles(p?.border),
     // Icon branch uses inline-flex so icon + text align cleanly on one row.
     // Plain branch stays inline-block (unchanged behaviour).
     ...(hasIcon

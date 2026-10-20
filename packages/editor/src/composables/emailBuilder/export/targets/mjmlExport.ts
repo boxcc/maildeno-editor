@@ -1,3 +1,4 @@
+import { hasBorder, borderToCss } from "@/utils/border";
 import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // export/targets/mjmlExport.ts
 // ─────────────────────────────────────────────────────────────────────────────
@@ -215,7 +216,7 @@ export const mjmlExport = (deps: Deps) => {
         `width:${colWidthPct}%`,
         `box-sizing:border-box`,
         `vertical-align:${col.verticalAlign ?? "middle"}`,
-        `border:${col.border.width}px ${col.border.style} ${col.border.color}`,
+        borderToCss(col.border),
         `border-radius:${radiusToCss(col.border.radius)}`,
         `overflow:hidden`,
         ...colBgStyles,
@@ -248,10 +249,9 @@ ${wrappedContent}
       }
     });
 
-    const rowBorderCss =
-      (row.border?.width ?? 0) > 0
-        ? `border:${row.border.width}px ${row.border.style} ${row.border.color};border-radius:${radiusToCss(row.border.radius)};overflow:hidden;`
-        : `border-radius:${radiusToCss(row.border.radius)};overflow:hidden;`;
+    const rowBorderCss = hasBorder(row.border)
+      ? `${borderToCss(row.border)};border-radius:${radiusToCss(row.border.radius)};overflow:hidden;`
+      : `border-radius:${radiusToCss(row.border.radius)};overflow:hidden;`;
 
     const rowPad = row.padding
       ? `${row.padding.top ?? 0}px ${row.padding.right ?? 0}px ${row.padding.bottom ?? 0}px ${row.padding.left ?? 0}px`
@@ -386,7 +386,7 @@ ${columnsTd}</tr>
       // ── Row outer td styles ──────────────────────────────────────────────────
       const hasBorderRadius = hasRadius(row.border?.radius ?? 0);
       const hasSimpleBorder =
-        (row.border?.width ?? 0) > 0 && !hasRadius(row.border?.radius ?? 0);
+        hasBorder(row.border) && !hasRadius(row.border?.radius ?? 0);
 
       const rowTdStyleParts: string[] = [
         ...rowBackgroundStyles,
@@ -395,15 +395,15 @@ ${columnsTd}</tr>
 
       // Simple border — apply directly on <td>, same as columns
       if (hasSimpleBorder) {
-        rowTdStyleParts.push(
-          `border:${row.border.width}px ${row.border.style} ${row.border.color}`,
-        );
+        rowTdStyleParts.push(borderToCss(row.border));
         rowTdStyleParts.push(`padding:${rowPad}`);
       }
 
       // Prevent background bleed when border-radius is present
       if (hasBorderRadius) {
-        rowTdStyleParts.push(`border-radius:${radiusToCss(row.border.radius, 2)}`);
+        rowTdStyleParts.push(
+          `border-radius:${radiusToCss(row.border.radius, 2)}`,
+        );
       }
 
       if ((row.minHeight ?? 0) > 0) {
@@ -415,8 +415,8 @@ ${columnsTd}</tr>
 
       // ── Row border for the inner wrapper div ─────────────────────────────────
       let rowBorderCss = "";
-      if ((row.border?.width ?? 0) > 0) {
-        rowBorderCss = `border:${row.border.width}px ${row.border.style} ${row.border.color};`;
+      if (hasBorder(row.border)) {
+        rowBorderCss = `${borderToCss(row.border)};`;
         if (hasRadius(row.border?.radius ?? 0)) {
           rowBorderCss += `border-radius:${radiusToCss(row.border.radius)};overflow:hidden;`;
         }
@@ -446,7 +446,7 @@ ${columnsTd}</tr>
           `box-sizing:border-box`,
           `vertical-align:${col.verticalAlign ?? "middle"}`,
           ...colBgStyles,
-          `border:${col.border?.width ?? 0}px ${col.border?.style ?? "solid"} ${col.border?.color ?? "transparent"}`,
+          borderToCss(col.border),
           `border-radius:${radiusToCss(col.border?.radius ?? 0)}`,
           `overflow:hidden`,
           `line-height:0`,

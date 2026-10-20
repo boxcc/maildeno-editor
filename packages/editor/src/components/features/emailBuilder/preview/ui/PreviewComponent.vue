@@ -171,6 +171,7 @@
 </template>
 
 <script setup lang="ts">
+import { borderStyles } from "@/utils/border";
 import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // components/preview/PreviewComponent.vue (v2)
 //
@@ -299,7 +300,7 @@ const nestedRowStyle = computed(() => {
     boxSizing: "border-box",
   };
   if (row.border) {
-    styles.border = `${row.border.width ?? 0}px ${row.border.style ?? "solid"} ${row.border.color ?? "transparent"}`;
+    Object.assign(styles, borderStyles(row.border));
     styles.borderRadius = radiusToCss(row.border.radius ?? 0);
   }
   if ((row.gap ?? 0) > 0) styles.gap = `${row.gap}px`;
@@ -343,7 +344,7 @@ function nestedColumnStyle(col: any): Record<string, string> {
     styles.overflow = "hidden";
   }
   if (col.border) {
-    styles.border = `${col.border.width ?? 0}px ${col.border.style ?? "solid"} ${col.border.color ?? "transparent"}`;
+    Object.assign(styles, borderStyles(col.border));
     styles.borderRadius = radiusToCss(radius);
   }
   if (col.backgroundImage) {
@@ -453,9 +454,7 @@ const imageStyle = computed(() => {
     height: "auto",
     maxWidth: "100%",
     borderRadius: radiusToCss(x.borderRadius ?? 0),
-    border: x.border
-      ? `${x.border.width ?? 0}px ${x.border.style ?? "solid"} ${x.border.color ?? "transparent"}`
-      : "none",
+    ...borderStyles(x.border),
     display: "inline-block",
   };
 });
@@ -535,9 +534,7 @@ const buttonStyle = computed(() => {
     letterSpacing: (x.letterSpacing ?? 0) + "px",
     padding: spacingStr(x.padding, "12px 24px"),
     borderRadius: radiusToCss(x.borderRadius ?? 4),
-    border: x.border
-      ? `${x.border.width ?? 0}px ${x.border.style ?? "solid"} ${x.border.color ?? "transparent"}`
-      : "none",
+    ...borderStyles(x.border),
     display: hasIcon ? "inline-flex" : "inline-block",
     alignItems: hasIcon ? "center" : undefined,
     verticalAlign: hasIcon ? "middle" : undefined,

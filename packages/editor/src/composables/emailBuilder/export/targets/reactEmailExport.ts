@@ -1,3 +1,4 @@
+import { borderStyles } from "@/utils/border";
 import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // export/targets/reactEmailExport.ts
 // ─────────────────────────────────────────────────────────────────────────────
@@ -226,7 +227,7 @@ export const reactEmailExport = (deps: Deps) => {
         width: `${colWidthPercentage}%`,
         boxSizing: "border-box",
         verticalAlign: col.verticalAlign ?? "middle",
-        border: `${col.border?.width ?? 0}px ${col.border?.style ?? "solid"} ${col.border?.color ?? "transparent"}`,
+        ...borderStyles(col.border),
         borderRadius: radiusToCss(col.border?.radius ?? 0),
         overflow: "hidden",
         lineHeight: "0",

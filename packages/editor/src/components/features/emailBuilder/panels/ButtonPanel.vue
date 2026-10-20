@@ -329,87 +329,14 @@
 
     <!-- Border -->
     <PropertySection title="Border">
-      <div class="flex items-center justify-between mb-1">
-        <span class="text-xs font-medium text-(--md-text-muted) italic"
-          >Mobile override</span
-        >
-        <button
-          v-if="isBorderOverridden()"
-          @click="resetBorder"
-          class="text-xs text-(--md-text-subtle) hover:text-(--md-text-muted)"
-        >
-          Reset All
-        </button>
-      </div>
-
-      <PropertyNumberSlider
-        label="Width"
-        :model-value="displayBorderValue('width') ?? 0"
-        @update:model-value="setBorderProp('width', $event)"
-        @reset="resetBorderProp('width')"
-        :is-overridden="isBorderPropOverridden('width')"
-        :min="0"
-        :max="10"
-        :step="1"
-        unit="px"
+      <BorderControl
+        :model-value="displayValue('border')"
+        :desktop-value="component.props.border"
+        :is-mobile-edit="editMode === 'mobile'"
+        :is-overridden="isBorderOverridden()"
+        @update:model-value="setProp('border', $event)"
+        @reset="resetBorder"
       />
-
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <label
-              class="flex items-center gap-1.5 text-xs font-medium text-(--md-text-muted)"
-            >
-              Color
-              <OverrideBadge :show="isBorderPropOverridden('color')" />
-            </label>
-            <button
-              v-if="isBorderPropOverridden('color')"
-              @click="resetBorderProp('color')"
-              class="text-xs text-(--md-selection-fg) hover:opacity-80"
-            >
-              Reset
-            </button>
-          </div>
-          <PropertyColor
-            bare
-            show-input
-            :model-value="displayBorderValue('color') ?? '#111111'"
-            @update:model-value="setBorderProp('color', $event)"
-          />
-        </div>
-
-        <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <label
-              class="flex items-center gap-1.5 text-xs font-medium text-(--md-text-muted)"
-            >
-              Style
-              <OverrideBadge :show="isBorderPropOverridden('style')" />
-            </label>
-            <button
-              v-if="isBorderPropOverridden('style')"
-              @click="resetBorderProp('style')"
-              class="text-xs text-(--md-selection-fg) hover:opacity-80"
-            >
-              Reset
-            </button>
-          </div>
-          <Select
-            :model-value="displayBorderValue('style') ?? 'solid'"
-            @update:model-value="setBorderProp('style', $event)"
-            :options="borderStyleOptions"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Select style"
-            class="w-full text-sm capitalize"
-            :class="{
-              'ring-1 ring-(--md-selection) rounded':
-                isBorderPropOverridden('style'),
-            }"
-          />
-        </div>
-      </div>
     </PropertySection>
 
     <!-- Spacing -->
@@ -474,7 +401,6 @@ import { useImageUploader } from "@/composables/system/useImageUpload";
 import { normalizeButtonDimension } from "@/blocks/buttonSizing";
 
 import InputText from "@/components/ui/primitives/InputText.vue";
-import Select from "@/components/ui/primitives/Select.vue";
 import Icon from "@/components/ui/Icon.vue";
 
 import OverrideBadge from "./shared/OverrideBadge.vue";
@@ -484,6 +410,7 @@ import PreviewBadge from "./shared/PreviewBadge.vue";
 import PropertySection from "./ui/PropertySection.vue";
 import PropertyNumberSlider from "./ui/PropertyNumberSlider.vue";
 import BorderRadiusControl from "./ui/BorderRadiusControl.vue";
+import BorderControl from "./ui/BorderControl.vue";
 import PropertySelect from "./ui/PropertySelect.vue";
 import PropertyAlignment from "./ui/PropertyAlignment.vue";
 import PropertyColor from "./ui/PropertyColor.vue";
@@ -549,8 +476,6 @@ const {
   isOverridden,
   setProp,
   resetProp,
-  displayBorderValue,
-  setBorderProp,
   isBorderOverridden,
   resetBorder,
   displayBackground,
@@ -745,28 +670,4 @@ const fontWeightOptions = [
   { label: "Medium", value: "medium" },
   { label: "Bold", value: "bold" },
 ];
-
-const borderStyleOptions = [
-  { label: "Solid", value: "solid" },
-  { label: "Dashed", value: "dashed" },
-  { label: "Dotted", value: "dotted" },
-];
-
-// ─── Border override helpers (with null guards) ───────────────────────────────
-
-type BorderProp = Parameters<typeof setBorderProp>[0];
-
-const isBorderPropOverridden = (prop: BorderProp): boolean => {
-  const desktopValue = component.value?.props.border?.[prop];
-  const mobileValue = component.value?.props.mobile?.border?.[prop];
-  if (editMode.value === "mobile") {
-    return mobileValue !== undefined && mobileValue !== desktopValue;
-  }
-  return false;
-};
-
-const resetBorderProp = (prop: BorderProp) => {
-  const desktopValue = component.value?.props.border?.[prop];
-  setBorderProp(prop, desktopValue);
-};
 </script>

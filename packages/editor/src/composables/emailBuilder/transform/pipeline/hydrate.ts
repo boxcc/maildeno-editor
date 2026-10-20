@@ -1,3 +1,4 @@
+import type { BorderValue } from "@/utils/border";
 import type { BorderRadius } from "@/utils/borderRadius";
 /**
  * hydrate.ts
@@ -24,10 +25,7 @@ interface VisibilityConfig {
   rules: unknown[];
 }
 
-interface BorderConfig {
-  width: number;
-  style: string;
-  color: string;
+interface BorderConfig extends BorderValue {
   radius?: BorderRadius;
 }
 

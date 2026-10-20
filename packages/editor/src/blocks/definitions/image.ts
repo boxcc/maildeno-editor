@@ -1,3 +1,4 @@
+import { borderStyles, borderToCss } from "@/utils/border";
 import { radiusToCss } from "@/utils/borderRadius";
 import ImageRenderer from "@/components/features/emailBuilder/ui/renderers/ImageRenderer.vue";
 import ImagePanel from "@/components/features/emailBuilder/panels/ImagePanel.vue";
@@ -18,7 +19,7 @@ function renderHtml(props: any, ctx: BlockRenderContext): string {
     props.mobileHide,
   );
 
-  const imgTag = `<img src="${props.src}" alt="${props.alt}" style="width:${props.width}%; height:${props.height}; border-radius:${radiusToCss(props.borderRadius)}; border:${props.border.width}px ${props.border.style} ${props.border.color}; display:inline-block;"/>`;
+  const imgTag = `<img src="${props.src}" alt="${props.alt}" style="width:${props.width}%; height:${props.height}; border-radius:${radiusToCss(props.borderRadius)}; ${borderToCss(props.border)}; display:inline-block;"/>`;
 
   const wrappedImage =
     props.enabled && props.link
@@ -46,7 +47,7 @@ function renderMjml(props: any, ctx: BlockRenderContext): string {
     props.mobileHide,
   );
 
-  const imgTag = `<img src="${props.src}" alt="${props.alt}" style="width:${props.width}%; height:${props.height}; border-radius:${radiusToCss(props.borderRadius)}; border:${props.border.width}px ${props.border.style} ${props.border.color}; display:inline-block;"/>`;
+  const imgTag = `<img src="${props.src}" alt="${props.alt}" style="width:${props.width}%; height:${props.height}; border-radius:${radiusToCss(props.borderRadius)}; ${borderToCss(props.border)}; display:inline-block;"/>`;
 
   const wrappedImage =
     props.enabled && props.link
@@ -80,7 +81,7 @@ function renderReactEmail(props: any, ctx: BlockRenderContext): string {
   const imgJsx = `<Img
     src="${props.src}"
     alt="${props.alt}"
-    style={{ width:"${props.width}%", height:"${props.height}", borderRadius:"${radiusToCss(props.borderRadius)}", border:"${props.border.width}px ${props.border.style} ${props.border.color}", display:"inline-block" }}
+    style={{ width:"${props.width}%", height:"${props.height}", borderRadius:"${radiusToCss(props.borderRadius)}", ...${JSON.stringify(borderStyles(props.border))}, display:"inline-block" }}
   />`;
 
   const wrappedImage =

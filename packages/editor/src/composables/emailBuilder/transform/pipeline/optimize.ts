@@ -1,3 +1,4 @@
+import type { BorderValue } from "@/utils/border";
 import type { BorderRadius } from "@/utils/borderRadius";
 /**
  * optimize.ts
@@ -15,10 +16,7 @@ export interface VisibilityConfig {
   rules: unknown[];
 }
 
-export interface BorderConfig {
-  width: number;
-  style: string;
-  color: string;
+export interface BorderConfig extends BorderValue {
   radius?: BorderRadius;
 }
 
@@ -123,6 +121,7 @@ const isDefaultBorder = (b: unknown): boolean => {
   if (!b || typeof b !== "object") return true;
   const border = b as BorderConfig;
   return (
+    !border.sides &&
     border.width === 0 &&
     border.style === "solid" &&
     border.color === "#000000" &&

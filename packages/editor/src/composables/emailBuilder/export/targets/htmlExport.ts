@@ -1,3 +1,4 @@
+import { borderToCss } from "@/utils/border";
 import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // export/targets/htmlExport.ts
 // ─────────────────────────────────────────────────────────────────────────────
@@ -233,7 +234,7 @@ export const htmlExport = (deps: Deps) => {
         `vertical-align:${col.verticalAlign ?? "middle"}`,
         `box-sizing:border-box`,
         ...colBackgroundStyles,
-        `border:${col.border.width}px ${col.border.style} ${col.border.color}`,
+        borderToCss(col.border),
         `border-radius:${radiusToCss(col.border.radius)}`,
         `overflow:hidden`,
         `line-height:0`,

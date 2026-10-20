@@ -181,47 +181,16 @@
 
     <!-- Border -->
     <PropertySection title="Border">
-      <PropertyNumberSlider
-        label="Width (px)"
-        :model-value="row.border.width"
-        :min="0"
+      <BorderControl
+        :model-value="row.border"
         :max="100"
-        :step="1"
-        unit="px"
-        @update:model-value="onBorderWidthChange"
+        @update:model-value="onBorderChange"
       />
       <BorderRadiusControl
         label="Border Radius (px)"
         :model-value="row.border.radius"
         @update:model-value="onBorderRadiusChange"
       />
-      <div class="grid grid-cols-4 gap-2">
-        <div class="col-span-2">
-          <label class="text-xs font-medium text-(--md-text-muted)"
-            >Color</label
-          >
-          <PropertyColor
-            label="Color"
-            bare
-            show-input
-            :model-value="row.border.color"
-            @update:model-value="onBorderColorChange"
-          />
-        </div>
-        <div class="col-span-2">
-          <label class="text-xs font-medium text-(--md-text-muted)"
-            >Style</label
-          >
-          <Select
-            :model-value="row.border.style"
-            :options="borderStyleOptions"
-            optionLabel="label"
-            optionValue="value"
-            class="w-full text-sm capitalize"
-            @update:model-value="onBorderStyleChange"
-          />
-        </div>
-      </div>
     </PropertySection>
 
     <!-- Spacing -->
@@ -263,13 +232,14 @@ import {
 } from "@/composables/emailBuilder/core/useEmailBuilderOperations";
 
 import InputText from "@/components/ui/primitives/InputText.vue";
-import Select from "@/components/ui/primitives/Select.vue";
 import Icon from "@/components/ui/Icon.vue";
 
 import Loading from "@/components/ui/Loading.vue";
 import PropertySection from "./ui/PropertySection.vue";
 import PropertyNumberSlider from "./ui/PropertyNumberSlider.vue";
 import BorderRadiusControl from "./ui/BorderRadiusControl.vue";
+import BorderControl from "./ui/BorderControl.vue";
+import type { BorderValue } from "@/utils/border";
 import PropertyColor from "./ui/PropertyColor.vue";
 import PropertyGradientColor from "./ui/PropertyGradientColor.vue";
 import PropertyVisibility from "./ui/PropertyVisibility.vue";
@@ -423,25 +393,15 @@ const onGapChange = (value: number) => {
   saveToHistory("row-gap");
 };
 
-const onBorderWidthChange = (value: number) => {
-  props.row.border.width = value;
-  saveToHistory("row-border-width");
+const onBorderChange = (value: BorderValue) => {
+  props.row.border = { ...props.row.border, ...value };
+  if (!value.sides) delete props.row.border.sides;
+  saveToHistory("row-border");
 };
 
 const onBorderRadiusChange = (value: BorderRadius) => {
   props.row.border.radius = value;
   saveToHistory("row-border-radius");
-};
-
-const onBorderColorChange = (value: string) => {
-  props.row.border.color = value;
-  saveToHistory("row-border-color");
-};
-
-const onBorderStyleChange = (value: unknown) => {
-  if (typeof value !== "string") return;
-  props.row.border.style = value;
-  saveToHistory("row-border-style");
 };
 
 const onPaddingChange = (value: any) => {
@@ -511,12 +471,6 @@ const bgRepeatOptions = [
   { label: "Repeat", value: "repeat" },
   { label: "X", value: "repeat-x" },
   { label: "Y", value: "repeat-y" },
-];
-
-const borderStyleOptions = [
-  { label: "Solid", value: "solid" },
-  { label: "Dashed", value: "dashed" },
-  { label: "Dotted", value: "dotted" },
 ];
 
 const backgroundPositions = [

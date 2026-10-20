@@ -1,3 +1,4 @@
+import { borderToCss } from "@/utils/border";
 import { radiusToCss } from "@/utils/borderRadius";
 import {
   getButtonSizeStyles,
@@ -194,12 +195,12 @@ export const useEmailExportMobileStyles = () => {
 
       if (m.border) {
         const br = m.border;
-        boxRules.push(
-          `border: ${br.width}px ${br.style} ${br.color} !important`,
-        );
+        boxRules.push(borderToCss(br, true));
       }
       if (m.borderRadius != null) {
-        boxRules.push(`border-radius: ${radiusToCss(m.borderRadius)} !important`);
+        boxRules.push(
+          `border-radius: ${radiusToCss(m.borderRadius)} !important`,
+        );
       }
 
       // ── Icon-button text cell ────────────────────────────────────────────
@@ -280,11 +281,7 @@ export const useEmailExportMobileStyles = () => {
         m.borderRadius != null &&
           `border-radius: ${radiusToCss(m.borderRadius)} !important`,
       );
-      addRule(
-        elementRules,
-        m.border != null &&
-          `border: ${m.border.width}px ${m.border.style} ${m.border.color} !important`,
-      );
+      addRule(elementRules, m.border != null && borderToCss(m.border, true));
     }
 
     // ── Video ────────────────────────────────────────────────────────────────
@@ -299,11 +296,7 @@ export const useEmailExportMobileStyles = () => {
         m.borderRadius != null &&
           `border-radius: ${radiusToCss(m.borderRadius)} !important`,
       );
-      addRule(
-        elementRules,
-        m.border != null &&
-          `border: ${m.border.width}px ${m.border.style} ${m.border.color} !important`,
-      );
+      addRule(elementRules, m.border != null && borderToCss(m.border, true));
     }
 
     // ── Divider ──────────────────────────────────────────────────────────────

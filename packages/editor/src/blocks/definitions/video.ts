@@ -1,3 +1,4 @@
+import { borderStyles, borderToCss } from "@/utils/border";
 import { radiusToCss } from "@/utils/borderRadius";
 import VideoRenderer from "@/components/features/emailBuilder/ui/renderers/VideoRenderer.vue";
 import VideoPanel from "@/components/features/emailBuilder/panels/VideoPanel.vue";
@@ -21,7 +22,7 @@ function renderHtml(props: any, ctx: BlockRenderContext): string {
   const linkHref = props.fallbackLink || props.src || "#";
   const coverSrc = props.coverImage || "";
   const altText = props.alt || "Watch Video";
-  const videoStyle = `width:${props.width}%; height:${props.height}; border-radius:${radiusToCss(props.borderRadius)}; border:${props.border.width}px ${props.border.style} ${props.border.color}; display:inline-block;`;
+  const videoStyle = `width:${props.width}%; height:${props.height}; border-radius:${radiusToCss(props.borderRadius)}; ${borderToCss(props.border)}; display:inline-block;`;
 
   return `              <div style="${marginStyle} ${paddingStyle} ${videoAlign}" class="${videoClasses}">
                 <a href="${safeUrl(linkHref)}" target="_blank" style="display:inline-block; text-decoration:none;">
@@ -63,7 +64,7 @@ function renderMjml(props: any, ctx: BlockRenderContext): string {
   const linkHref = props.fallbackLink || props.src || "#";
   const coverSrc = props.coverImage || "";
   const altText = props.alt || "Watch Video";
-  const videoStyle = `width:${props.width}%; height:${props.height}; border-radius:${radiusToCss(props.borderRadius)}; border:${props.border.width}px ${props.border.style} ${props.border.color}; display:inline-block;`;
+  const videoStyle = `width:${props.width}%; height:${props.height}; border-radius:${radiusToCss(props.borderRadius)}; ${borderToCss(props.border)}; display:inline-block;`;
 
   return `<mj-text  padding="0" 
       font-size="0" 
@@ -111,8 +112,8 @@ function renderReactEmail(props: any, ctx: BlockRenderContext): string {
 
   // React Email does not support <video> — render fallback image / CTA
   const fallbackContent = coverSrc
-    ? `<Img src="${coverSrc}" alt="${altText}" style={{ width:"${props.width}%", height:"${props.height}", borderRadius:"${radiusToCss(props.borderRadius)}", border:"${props.border.width}px ${props.border.style} ${props.border.color}", display:"inline-block" }} />`
-    : `<span style={{ display:"inline-block", padding:"12px 24px", backgroundColor:"#222222", color:"#ffffff", fontFamily:"sans-serif", fontSize:"15px", borderRadius:"${radiusToCss(props.borderRadius)}" }}>&#9654; ${altText}</span>`;
+    ? `<Img src="${coverSrc}" alt="${altText}" style={{ width:"${props.width}%", height:"${props.height}", borderRadius:"${radiusToCss(props.borderRadius)}", ...${JSON.stringify(borderStyles(props.border))}, display:"inline-block" }} />`
+    : `<span style={{ display:"inline-block", padding:"12px 24px", backgroundColor:"#222222", color:"#ffffff", fontFamily:"sans-serif", fontSize:"15px", borderRadius:"${radiusToCss(props.borderRadius)}", ...${JSON.stringify(borderStyles(props.border))} }}>&#9654; ${altText}</span>`;
 
   return `<div
   className="${videoClasses}"

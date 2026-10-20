@@ -21,6 +21,7 @@
 </template>
 
 <script setup lang="ts">
+import { borderStyles } from "@/utils/border";
 import { radiusToCss } from "@/utils/borderRadius";
 import { computed, type CSSProperties } from "vue";
 import { useEmailBuilder } from "@/composables/emailBuilder/core/useEmailBuilder";
@@ -93,7 +94,7 @@ const imageStyles = computed<CSSProperties>(() => ({
   height: p.value.height === "auto" ? "auto" : `${p.value.height}px`,
   objectFit: "cover",
   borderRadius: radiusToCss(p.value.borderRadius),
-  border: `${p.value.border.width}px ${p.value.border.style} ${p.value.border.color}`,
+  ...borderStyles(p.value.border),
   display: "inline-block",
   verticalAlign: "top", // or "middle" / "bottom"
 }));

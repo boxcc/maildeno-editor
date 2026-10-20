@@ -1,3 +1,4 @@
+import { hasBorder, borderToCss, borderStyles } from "@/utils/border";
 import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // export/shared/containers.ts
 // Unified container wrappers used across HTML and React Email exports.
@@ -7,8 +8,8 @@ import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // ─── Border helper ────────────────────────────────────────────────────────────
 
 const buildBorderStyle = (border: any): string => {
-  if (!border || border.width === 0) return "";
-  return `border:${border.width}px ${border.style} ${border.color}`;
+  if (!hasBorder(border)) return "";
+  return borderToCss(border);
 };
 
 // ─── HTML container wrapper ───────────────────────────────────────────────────
@@ -38,9 +39,9 @@ export const wrapWithContainerDiv = (
   const paddingStr = `padding:${padding?.top ?? 0}px ${padding?.right ?? 0}px ${padding?.bottom ?? 0}px ${padding?.left ?? 0}px`;
 
   const hasBorderRadius =
-    border && hasRadius(border.radius ?? 0) && border.width > 0;
+    border && hasRadius(border.radius ?? 0) && hasBorder(border);
   const hasSimpleBorder =
-    border && border.width > 0 && !hasRadius(border.radius ?? 0);
+    border && hasBorder(border) && !hasRadius(border.radius ?? 0);
 
   // Case 1: No border or simple border (no radius)
   // Background stays on td, border on inner div for consistent rendering
@@ -66,7 +67,7 @@ export const wrapWithContainerDiv = (
     `font-size:0`,
   ];
 
-  if (border.width > 0) {
+  if (hasBorder(border)) {
     outerStyles.push(buildBorderStyle(border));
   }
 
@@ -92,9 +93,12 @@ export const wrapWithContainerDivReact = (
   const paddingVal = `${padding?.top ?? 0}px ${padding?.right ?? 0}px ${padding?.bottom ?? 0}px ${padding?.left ?? 0}px`;
 
   const hasBorderRadius =
-    border && hasRadius(border.radius ?? 0) && border.width > 0 && applyBorder;
+    border && hasRadius(border.radius ?? 0) && hasBorder(border) && applyBorder;
   const hasSimpleBorder =
-    border && border.width > 0 && !hasRadius(border.radius ?? 0) && applyBorder;
+    border &&
+    hasBorder(border) &&
+    !hasRadius(border.radius ?? 0) &&
+    applyBorder;
 
   // Case 1: No border-radius - simple div with padding and optional border
   if (!hasBorderRadius) {
@@ -105,7 +109,7 @@ export const wrapWithContainerDivReact = (
     };
 
     if (hasSimpleBorder) {
-      divStyle.border = `${border.width}px ${border.style} ${border.color}`;
+      Object.assign(divStyle, borderStyles(border));
       if (hasRadius(border.radius ?? 0)) {
         divStyle.borderRadius = radiusToCss(border.radius);
       }
@@ -126,8 +130,8 @@ export const wrapWithContainerDivReact = (
     fontSize: "0",
   };
 
-  if (border.width > 0) {
-    outerStyle.border = `${border.width}px ${border.style} ${border.color}`;
+  if (hasBorder(border)) {
+    Object.assign(outerStyle, borderStyles(border));
   }
 
   const innerStyle: Record<string, string> = {

@@ -24,6 +24,7 @@
 </template>
 
 <script setup lang="ts">
+import { borderStyles } from "@/utils/border";
 import { radiusToCss } from "@/utils/borderRadius";
 import { computed, onMounted, watch } from "vue";
 import RowPreviewChildren from "./RowPreviewChildren.vue";
@@ -145,7 +146,7 @@ const rowStyle = computed(() => {
     background: resolveBackground(r),
     padding: `${r.padding?.top ?? 0}px ${r.padding?.right ?? 0}px ${r.padding?.bottom ?? 0}px ${r.padding?.left ?? 0}px`,
     alignItems: "stretch",
-    border: `${r.border?.width ?? 0}px ${r.border?.style ?? "solid"} ${r.border?.color ?? "transparent"}`,
+    ...borderStyles(r.border),
     borderRadius: radiusToCss(r.border?.radius ?? 0),
     gap: `${r.gap ?? 0}px`,
   };
@@ -188,7 +189,7 @@ function colStyle(col: any, parentRow?: any) {
     boxSizing: "border-box",
     background: resolveBackground(col),
     padding: `${col.padding?.top ?? 10}px ${col.padding?.right ?? 10}px ${col.padding?.bottom ?? 10}px ${col.padding?.left ?? 10}px`,
-    border: `${col.border?.width ?? 0}px ${col.border?.style ?? "solid"} ${col.border?.color ?? "transparent"}`,
+    ...borderStyles(col.border),
     borderRadius: radiusToCss(col.border?.radius ?? 0),
     overflow: "hidden",
     minWidth: "0",
