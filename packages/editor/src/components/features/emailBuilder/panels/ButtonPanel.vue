@@ -274,6 +274,42 @@
 
     <!-- Layout -->
     <PropertySection title="Layout">
+      <div v-for="dimension in buttonDimensions" :key="dimension.key">
+        <div class="flex items-center justify-between mb-1.5">
+          <label
+            :for="`${component.id}-${dimension.key}`"
+            class="flex items-center gap-1.5 text-xs font-medium text-(--md-text-muted)"
+          >
+            {{ dimension.label }}
+            <OverrideBadge :show="isOverridden(dimension.key)" />
+          </label>
+          <button
+            v-if="isOverridden(dimension.key)"
+            type="button"
+            class="text-xs text-(--md-selection-fg) hover:opacity-80"
+            @click="resetProp(dimension.key)"
+          >
+            ↩ Reset
+          </button>
+        </div>
+        <InputText
+          :id="`${component.id}-${dimension.key}`"
+          :model-value="displayValue(dimension.key) ?? 'auto'"
+          :aria-describedby="`${component.id}-size-help`"
+          placeholder="auto, 200px or 100%"
+          @input="($event.target as HTMLInputElement).setCustomValidity('')"
+          @change="onDimensionChange(dimension.key, $event)"
+        />
+      </div>
+      <p
+        :id="`${component.id}-size-help`"
+        class="text-xs text-(--md-text-subtle)"
+      >
+        Use auto, pixels (200px), or a percentage (100%). Dimensions include
+        padding and borders. Percentage height requires a parent with an
+        explicit height.
+      </p>
+
       <PropertyAlignment
         :model-value="displayValue('align')"
         :is-overridden="isOverridden('align')"
@@ -439,6 +475,7 @@ import { useComponentStyleEditor } from "@/composables/emailBuilder/components/u
 import { useLinkTagInsert } from "@/composables/emailBuilder/core/link-tags/useLinkTagInsert";
 import { resolveString } from "@/composables/emailBuilder/core/merge-tags/mergeTagDefinitions";
 import { useImageUploader } from "@/composables/system/useImageUpload";
+import { normalizeButtonDimension } from "@/blocks/buttonSizing";
 
 import InputText from "@/components/ui/primitives/InputText.vue";
 import Select from "@/components/ui/primitives/Select.vue";
@@ -534,6 +571,27 @@ watch(
 );
 
 // ─── Props mutation handlers (each calls saveToHistory) ─────────────────
+
+const buttonDimensions = [
+  { key: "width", label: "Width" },
+  { key: "height", label: "Height" },
+] as const;
+
+const onDimensionChange = (key: "width" | "height", event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const value = input.value.trim().toLowerCase() || "auto";
+  const normalized = normalizeButtonDimension(value);
+  if (normalized === "auto" && value !== "auto") {
+    input.setCustomValidity(
+      "Enter auto, a non-negative pixel value (200px), or a percentage (100%).",
+    );
+    input.reportValidity();
+    return;
+  }
+  input.setCustomValidity("");
+  input.value = normalized;
+  setProp(key, normalized);
+};
 
 const onTextInput = (value: string) => {
   component.value!.props.text = value.trim();

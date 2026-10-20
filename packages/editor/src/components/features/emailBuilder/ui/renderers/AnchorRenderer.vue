@@ -58,6 +58,7 @@ import { computed } from "vue";
 import { useEmailBuilder } from "@/composables/emailBuilder/core/useEmailBuilder";
 import { useGoogleFonts } from "@/composables/system/useGoogleFonts";
 import { resolveString } from "@/composables/emailBuilder/core/merge-tags/mergeTagDefinitions";
+import { getButtonSizeStyles } from "@/blocks/buttonSizing";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -186,24 +187,25 @@ const innerStyles = computed(() => {
   };
 
   if (props.component.componentType === "button") {
-    // Display mode depends on whether we have an icon:
-    // - No icon: inline-block, text inside the <a> flows normally.
-    // - With icon: inline-flex on the <a> itself — removes the inline
-    //   baseline box that was causing the "before" height asymmetry.
-    //   `align-items: center` vertically centres the icon with the text.
-    const displayBlock = hasIcon.value
-      ? {
-          display: "inline-flex",
-          alignItems: "center",
-          // Keeps the button sitting on the same baseline as surrounding
-          // inline content — matches inline-block's default behaviour.
-          verticalAlign: "middle",
-        }
-      : { display: "inline-block" };
+    // Icons and explicit dimensions need centred content. Keep the original
+    // inline-block layout for unsized text buttons.
+    const sizeStyles = getButtonSizeStyles(p.value);
+    const displayBlock =
+      hasIcon.value || Object.keys(sizeStyles).length > 0
+        ? {
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            // Keeps the button sitting on the same baseline as surrounding
+            // inline content — matches inline-block's default behaviour.
+            verticalAlign: "middle",
+          }
+        : { display: "inline-block" };
 
     return {
       ...base,
       ...displayBlock,
+      ...sizeStyles,
       padding: `${p.value.padding.top}px ${p.value.padding.right}px ${p.value.padding.bottom}px ${p.value.padding.left}px`,
       background: resolveBackground(p.value),
       borderRadius: p.value.borderRadius + "px",

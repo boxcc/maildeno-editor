@@ -1,3 +1,5 @@
+import { normalizeButtonDimension } from "@/blocks/buttonSizing";
+
 export const useEmailExportMobileStyles = () => {
   const emailMobileStyles = (comp: any, uid: string): string => {
     // ── CRITICAL: resolve render variant — new shape uses componentType,
@@ -205,6 +207,13 @@ export const useEmailExportMobileStyles = () => {
       // We only emit TEXT-APPEARANCE properties here — no padding/border/
       // background, since those still belong on the <a>.
       if (compType === "button") {
+        for (const key of ["width", "height"] as const) {
+          if (m[key] != null) {
+            elementRules.push(
+              `${key}: ${normalizeButtonDimension(m[key])} !important`,
+            );
+          }
+        }
         const textCellRules: string[] = [];
         addRule(
           textCellRules,

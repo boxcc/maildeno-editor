@@ -193,6 +193,8 @@ export const useEmailBuilderDefaults = () => {
     button: {
       text: "Click Me",
       link: "https://example.com",
+      width: "auto",
+      height: "auto",
       backgroundColor: "#007bff",
       backgroundGradient: makeBackground("#007bff"),
       color: "#fafafa",
@@ -212,6 +214,8 @@ export const useEmailBuilderDefaults = () => {
       iconSize: 20,
       iconGap: 8,
       mobile: {
+        width: null,
+        height: null,
         fontSize: null,
         fontWeight: null,
         fontFamily: null,

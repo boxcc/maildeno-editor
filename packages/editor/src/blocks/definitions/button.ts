@@ -1,6 +1,7 @@
 import AnchorRenderer from "@/components/features/emailBuilder/ui/renderers/AnchorRenderer.vue";
 import ButtonPanel from "@/components/features/emailBuilder/panels/ButtonPanel.vue";
 import type { BlockDefinition, BlockRenderContext } from "../types";
+import { getButtonSizeStyles } from "../buttonSizing";
 
 /**
  * Extracted verbatim from the "button" case in each of the three generators
@@ -60,8 +61,12 @@ function renderHtml(props: any, ctx: BlockRenderContext): string {
     `font-family:'${props.fontFamily}', Arial, sans-serif; ` +
     `${letterSpacingStyle}`;
 
+  const sizeStyles = getButtonSizeStyles(props);
+  const sizingCss = sizeStyles.width
+    ? `width:${sizeStyles.width}; height:${sizeStyles.height}; box-sizing:border-box; text-align:center; `
+    : "";
   const linkShellStyles =
-    `${paddingStyle} display:inline-block; ${bgInlineStyle} ` +
+    `${paddingStyle} display:inline-block; ${sizingCss}${bgInlineStyle} ` +
     `border-radius:${props.borderRadius}px; ` +
     `border:${props.border.width}px ${props.border.style} ${props.border.color}; ` +
     `text-decoration:none; ` +
@@ -88,12 +93,20 @@ function renderHtml(props: any, ctx: BlockRenderContext): string {
       `${escapeHtml(props.text)}</td>`;
 
     innerContent =
-      `<table role="presentation" border="0" cellpadding="0" cellspacing="0" ` +
+      `<table ${sizeStyles.width ? 'align="center" ' : ""}role="presentation" border="0" cellpadding="0" cellspacing="0" ` +
       `style="border-collapse:collapse; border-spacing:0; line-height:0;"><tr>` +
       `${iconIsBefore ? iconCell + textCell : textCell + iconCell}` +
       `</tr></table>`;
   } else {
     innerContent = escapeHtml(props.text);
+  }
+
+  if (sizeStyles.width) {
+    innerContent =
+      `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" height="100%" ` +
+      `style="width:100%; height:100%; border-collapse:collapse;"><tr>` +
+      `<td align="center" valign="middle" class="${getResponsiveClasses(false, false, "text")}" ` +
+      `style="padding:0; line-height:normal; ${textStyles}">${innerContent}</td></tr></table>`;
   }
 
   return `              <div style="${marginStyle} ${btnAlign}" class="${buttonContainerClasses}">
@@ -148,8 +161,12 @@ function renderMjml(props: any, ctx: BlockRenderContext): string {
     `font-family:'${props.fontFamily}', Arial, sans-serif; ` +
     `${letterSpacingStyle}`;
 
+  const sizeStyles = getButtonSizeStyles(props);
+  const sizingCss = sizeStyles.width
+    ? `width:${sizeStyles.width}; height:${sizeStyles.height}; box-sizing:border-box; text-align:center; `
+    : "";
   const linkShellStyles =
-    `${paddingStyle} display:inline-block; ${bgInlineStyle} ` +
+    `${paddingStyle} display:inline-block; ${sizingCss}${bgInlineStyle} ` +
     `border-radius:${props.borderRadius}px; ` +
     `border:${props.border.width}px ${props.border.style} ${props.border.color}; ` +
     `text-decoration:none; ` +
@@ -175,12 +192,20 @@ function renderMjml(props: any, ctx: BlockRenderContext): string {
       `${escapeHtml(props.text)}</td>`;
 
     innerContent =
-      `<table role="presentation" border="0" cellpadding="0" cellspacing="0" ` +
+      `<table ${sizeStyles.width ? 'align="center" ' : ""}role="presentation" border="0" cellpadding="0" cellspacing="0" ` +
       `style="border-collapse:collapse; border-spacing:0; line-height:0;"><tr>` +
       `${iconIsBefore ? iconCell + textCell : textCell + iconCell}` +
       `</tr></table>`;
   } else {
     innerContent = escapeHtml(props.text);
+  }
+
+  if (sizeStyles.width) {
+    innerContent =
+      `<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" height="100%" ` +
+      `style="width:100%; height:100%; border-collapse:collapse;"><tr>` +
+      `<td align="center" valign="middle" class="${getResponsiveClasses(false, false, "text")}" ` +
+      `style="padding:0; line-height:normal; ${textStyles}">${innerContent}</td></tr></table>`;
   }
 
   return `<mj-text padding="0"
@@ -235,6 +260,7 @@ function renderReactEmail(props: any, ctx: BlockRenderContext): string {
   const linkShellStyle: Record<string, any> = {
     ...parseMarginPaddingDiscrete(undefined, props.padding),
     display: "inline-block",
+    ...getButtonSizeStyles(props),
     ...(bgInlineStyle ? react.parseCssString(bgInlineStyle) : {}),
     borderRadius: `${props.borderRadius}px`,
     border: `${props.border.width}px ${props.border.style} ${props.border.color}`,
@@ -272,6 +298,7 @@ function renderReactEmail(props: any, ctx: BlockRenderContext): string {
       borderCollapse: "collapse",
       borderSpacing: 0,
       lineHeight: 0,
+      ...(linkShellStyle.width ? { margin: "0 auto" } : {}),
     };
 
     const iconCell = `<td style={{ ${styleObj(iconCellStyle)} }}><img src="${safeUrl(
@@ -290,6 +317,16 @@ function renderReactEmail(props: any, ctx: BlockRenderContext): string {
     }</tr></tbody></table>`;
   } else {
     innerContent = props.text;
+  }
+
+  if (linkShellStyle.width) {
+    const tableStyle = {
+      width: "100%",
+      height: "100%",
+      borderCollapse: "collapse",
+    };
+    const cellStyle = { padding: 0, lineHeight: "normal", ...textStyles };
+    innerContent = `<table role="presentation" border={0} cellPadding={0} cellSpacing={0} width="100%" height="100%" style={{ ${styleObj(tableStyle)} }}><tbody><tr><td align="center" valign="middle" className="${getResponsiveClasses(false, false, "text")}" style={{ ${styleObj(cellStyle)} }}>${innerContent}</td></tr></tbody></table>`;
   }
 
   return `<div
@@ -312,6 +349,8 @@ export const buttonBlock: BlockDefinition = {
   schema: {
     text: { type: "string", default: "Click Here" },
     link: { type: "string", default: "https://" },
+    width: { type: "string", default: "auto" },
+    height: { type: "string", default: "auto" },
   },
   renderCanvas: AnchorRenderer,
   renderSettings: ButtonPanel,
