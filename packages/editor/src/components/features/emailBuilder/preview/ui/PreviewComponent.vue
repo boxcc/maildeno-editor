@@ -171,6 +171,7 @@
 </template>
 
 <script setup lang="ts">
+import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // components/preview/PreviewComponent.vue (v2)
 //
 // Faithful 1:1 re-implementation of CanvasComponent.vue's leaf-rendering
@@ -299,7 +300,7 @@ const nestedRowStyle = computed(() => {
   };
   if (row.border) {
     styles.border = `${row.border.width ?? 0}px ${row.border.style ?? "solid"} ${row.border.color ?? "transparent"}`;
-    styles.borderRadius = `${row.border.radius ?? 0}px`;
+    styles.borderRadius = radiusToCss(row.border.radius ?? 0);
   }
   if ((row.gap ?? 0) > 0) styles.gap = `${row.gap}px`;
   if (row.backgroundImage) {
@@ -338,12 +339,12 @@ function nestedColumnStyle(col: any): Record<string, string> {
     // (which hides backgrounds in some engines) doesn't apply. Matches real
     // CanvasColumn behavior.
   };
-  if (radius > 0) {
+  if (hasRadius(radius)) {
     styles.overflow = "hidden";
   }
   if (col.border) {
     styles.border = `${col.border.width ?? 0}px ${col.border.style ?? "solid"} ${col.border.color ?? "transparent"}`;
-    styles.borderRadius = `${radius}px`;
+    styles.borderRadius = radiusToCss(radius);
   }
   if (col.backgroundImage) {
     styles.backgroundImage = `url(${col.backgroundImage})`;
@@ -451,7 +452,7 @@ const imageStyle = computed(() => {
     width: typeof x.width === "number" ? x.width + "%" : "100%",
     height: "auto",
     maxWidth: "100%",
-    borderRadius: (x.borderRadius ?? 0) + "px",
+    borderRadius: radiusToCss(x.borderRadius ?? 0),
     border: x.border
       ? `${x.border.width ?? 0}px ${x.border.style ?? "solid"} ${x.border.color ?? "transparent"}`
       : "none",
@@ -485,7 +486,7 @@ const videoFrameStyle = computed(() => {
     width: typeof x.width === "number" ? x.width + "%" : "100%",
     paddingTop: "56.25%",
     overflow: "hidden",
-    borderRadius: (x.borderRadius ?? 0) + "px",
+    borderRadius: radiusToCss(x.borderRadius ?? 0),
   };
 });
 
@@ -533,7 +534,7 @@ const buttonStyle = computed(() => {
       : "Arial, sans-serif",
     letterSpacing: (x.letterSpacing ?? 0) + "px",
     padding: spacingStr(x.padding, "12px 24px"),
-    borderRadius: (x.borderRadius ?? 4) + "px",
+    borderRadius: radiusToCss(x.borderRadius ?? 4),
     border: x.border
       ? `${x.border.width ?? 0}px ${x.border.style ?? "solid"} ${x.border.color ?? "transparent"}`
       : "none",

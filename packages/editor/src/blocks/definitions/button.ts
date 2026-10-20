@@ -1,3 +1,4 @@
+import { radiusToCss } from "@/utils/borderRadius";
 import AnchorRenderer from "@/components/features/emailBuilder/ui/renderers/AnchorRenderer.vue";
 import ButtonPanel from "@/components/features/emailBuilder/panels/ButtonPanel.vue";
 import type { BlockDefinition, BlockRenderContext } from "../types";
@@ -58,7 +59,7 @@ function renderHtml(props: any, ctx: BlockRenderContext): string {
     (sizeStyles.width
       ? `display:block; height:100%; padding:0; border:0; text-align:center; `
       : `${paddingStyle} display:inline-block; ${bgInlineStyle} ` +
-        `border-radius:${props.borderRadius}px; ` +
+        `border-radius:${radiusToCss(props.borderRadius)}; ` +
         `border:${props.border.width}px ${props.border.style} ${props.border.color}; `) +
     `text-decoration:none; ` +
     (hasIcon
@@ -113,7 +114,7 @@ function renderHtml(props: any, ctx: BlockRenderContext): string {
     // Tables own dimensions and borders; the link has no width-plus-padding box.
     return `<div style="${marginStyle} ${btnAlign}" class="${buttonContainerClasses}">
   <table role="presentation" border="0" cellpadding="0" cellspacing="0" align="${props.align === "right" ? "right" : props.align === "left" ? "left" : "center"}"${widthAttr}${heightAttr}${bgAttr}
-    class="${getResponsiveClasses(false, false, "button-table")}" style="display:inline-table; float:none; margin:0; vertical-align:middle; border-collapse:separate; border-spacing:0; table-layout:fixed; width:${sizeStyles.width}; height:${sizeStyles.height}; ${bgInlineStyle} border-radius:${props.borderRadius}px; border:${props.border.width}px ${props.border.style} ${props.border.color};">
+    class="${getResponsiveClasses(false, false, "button-table")}" style="display:inline-table; float:none; margin:0; vertical-align:middle; border-collapse:separate; border-spacing:0; table-layout:fixed; width:${sizeStyles.width}; height:${sizeStyles.height}; ${bgInlineStyle} border-radius:${radiusToCss(props.borderRadius)}; border:${props.border.width}px ${props.border.style} ${props.border.color};">
     <tr><td style="padding:0; height:100%;">
       <a href="${safeUrl(props.link)}" style="${linkShellStyles}" target="_blank" rel="noopener noreferrer nofollow" class="${buttonLinkClasses}">${innerContent}</a>
     </td></tr>
@@ -193,7 +194,7 @@ function renderReactEmail(props: any, ctx: BlockRenderContext): string {
           ...parseMarginPaddingDiscrete(undefined, props.padding),
           display: "inline-block",
           ...(bgInlineStyle ? react.parseCssString(bgInlineStyle) : {}),
-          borderRadius: `${props.borderRadius}px`,
+          borderRadius: radiusToCss(props.borderRadius),
           border: `${props.border.width}px ${props.border.style} ${props.border.color}`,
         }),
     textDecoration: "none",
@@ -275,7 +276,7 @@ function renderReactEmail(props: any, ctx: BlockRenderContext): string {
       width: sizeStyles.width,
       height: sizeStyles.height,
       ...(bgInlineStyle ? react.parseCssString(bgInlineStyle) : {}),
-      borderRadius: `${props.borderRadius}px`,
+      borderRadius: radiusToCss(props.borderRadius),
       border: `${props.border.width}px ${props.border.style} ${props.border.color}`,
     };
     const widthAttr =

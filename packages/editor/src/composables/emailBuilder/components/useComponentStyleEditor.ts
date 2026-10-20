@@ -1,3 +1,4 @@
+import type { BorderRadius } from "@/utils/borderRadius";
 /**
  * useComponentStyleEditor
  *
@@ -41,7 +42,7 @@ export interface BorderProps {
   width: number;
   color: string;
   style: "solid" | "dashed" | "dotted";
-  radius?: number;
+  radius?: BorderRadius;
 }
 
 /**

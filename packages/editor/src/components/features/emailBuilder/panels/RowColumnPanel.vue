@@ -156,13 +156,9 @@
         unit="px"
         @update:model-value="onBorderWidthChange"
       />
-      <PropertyNumberSlider
+      <BorderRadiusControl
         label="Border Radius (px)"
         :model-value="column.border.radius"
-        :min="0"
-        :max="100"
-        :step="1"
-        unit="px"
         @update:model-value="onBorderRadiusChange"
       />
       <div class="grid grid-cols-4 gap-2">
@@ -206,6 +202,7 @@
 </template>
 
 <script setup lang="ts">
+import type { BorderRadius } from "@/utils/borderRadius";
 import { ref, computed } from "vue";
 import { useEmailBuilder } from "@/composables/emailBuilder/core/useEmailBuilder";
 import { useImageUploader } from "@/composables/system/useImageUpload";
@@ -217,6 +214,7 @@ import Icon from "@/components/ui/Icon.vue";
 import Loading from "@/components/ui/Loading.vue";
 import PropertySection from "./ui/PropertySection.vue";
 import PropertyNumberSlider from "./ui/PropertyNumberSlider.vue";
+import BorderRadiusControl from "./ui/BorderRadiusControl.vue";
 import PropertySelect from "./ui/PropertySelect.vue";
 import PropertyColor from "./ui/PropertyColor.vue";
 import SpacingControl from "./ui/SpacingControl.vue";
@@ -327,7 +325,7 @@ const onBorderWidthChange = (value: number) => {
   saveToHistory("column-border-width");
 };
 
-const onBorderRadiusChange = (value: number) => {
+const onBorderRadiusChange = (value: BorderRadius) => {
   props.column.border.radius = value;
   saveToHistory("column-border-radius");
 };

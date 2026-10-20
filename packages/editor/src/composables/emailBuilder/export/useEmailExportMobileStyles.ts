@@ -1,3 +1,4 @@
+import { radiusToCss } from "@/utils/borderRadius";
 import {
   getButtonSizeStyles,
   normalizeButtonDimension,
@@ -198,7 +199,7 @@ export const useEmailExportMobileStyles = () => {
         );
       }
       if (m.borderRadius != null) {
-        boxRules.push(`border-radius: ${m.borderRadius}px !important`);
+        boxRules.push(`border-radius: ${radiusToCss(m.borderRadius)} !important`);
       }
 
       // ── Icon-button text cell ────────────────────────────────────────────
@@ -277,7 +278,7 @@ export const useEmailExportMobileStyles = () => {
       addRule(
         elementRules,
         m.borderRadius != null &&
-          `border-radius: ${m.borderRadius}px !important`,
+          `border-radius: ${radiusToCss(m.borderRadius)} !important`,
       );
       addRule(
         elementRules,
@@ -296,7 +297,7 @@ export const useEmailExportMobileStyles = () => {
       addRule(
         elementRules,
         m.borderRadius != null &&
-          `border-radius: ${m.borderRadius}px !important`,
+          `border-radius: ${radiusToCss(m.borderRadius)} !important`,
       );
       addRule(
         elementRules,

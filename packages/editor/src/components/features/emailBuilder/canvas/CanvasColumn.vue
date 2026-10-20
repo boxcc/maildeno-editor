@@ -102,6 +102,7 @@
 </template>
 
 <script setup lang="ts">
+import { radiusToCss } from "@/utils/borderRadius";
 import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useEmailBuilder } from "@/composables/emailBuilder/core/useEmailBuilder";
 import { useLayoutDrag } from "@/composables/emailBuilder/core/ui/useLayoutDrag";
@@ -297,7 +298,7 @@ const getColumnStyles = (): Record<string, string> => {
       : "10px",
     background: backgroundValue,
     border: `${c.border.width}px ${c.border.style} ${c.border.color}`,
-    borderRadius: `${c.border.radius}px`,
+    borderRadius: radiusToCss(c.border.radius),
     overflow: "hidden",
   };
 

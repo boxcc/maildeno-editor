@@ -1,3 +1,4 @@
+import type { BorderRadius } from "@/utils/borderRadius";
 /**
  * hydrate.ts
  * Restores stripped defaults when importing an optimized JSON template.
@@ -27,7 +28,7 @@ interface BorderConfig {
   width: number;
   style: string;
   color: string;
-  radius?: number;
+  radius?: BorderRadius;
 }
 
 interface GradientConfig {

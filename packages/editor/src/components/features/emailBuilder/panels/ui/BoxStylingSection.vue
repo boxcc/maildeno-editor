@@ -28,13 +28,10 @@
         unit="px"
         @update:model-value="onPaddingChange"
       />
-      <PropertyNumberSlider
+      <BorderRadiusControl
         label="Corner Radius"
         :model-value="radius"
-        :min="0"
         :max="40"
-        :step="1"
-        unit="px"
         @update:model-value="onRadiusChange"
       />
     </div>
@@ -46,6 +43,12 @@ import { ref, computed, watch, onBeforeUnmount } from "vue";
 import type { Editor } from "@tiptap/vue-3";
 import { TextSelection } from "@tiptap/pm/state";
 import PropertyNumberSlider from "./PropertyNumberSlider.vue";
+import BorderRadiusControl from "./BorderRadiusControl.vue";
+import {
+  hasRadius,
+  radiusToCss,
+  type BorderRadius,
+} from "@/utils/borderRadius";
 
 const props = defineProps<{
   editor: Editor | undefined;
@@ -57,7 +60,7 @@ const props = defineProps<{
 // value", interrupted the next tick). We seed one-way from the selection and
 // write one-way to the editor.
 const padding = ref(0);
-const radius = ref(0);
+const radius = ref<BorderRadius>(0);
 
 // Guards the selection-driven re-seed so the selectionUpdate fired by our OWN
 // apply transaction (restoreSelection + setMark) doesn't overwrite the slider
@@ -71,13 +74,27 @@ const parsePadding = (raw: string | null | undefined): number => {
     .map((p) => parseInt(p.replace("px", ""), 10) || 0);
   return parts.length ? Math.max(...parts) : 0;
 };
-const parseRadius = (raw: string | null | undefined): number => {
+const parseRadius = (raw: string | null | undefined): BorderRadius => {
   if (!raw) return 0;
-  return parseInt(String(raw).replace("px", ""), 10) || 0;
+  const parts = raw
+    .trim()
+    .split(/\s+/)
+    .map((part) => parseFloat(part) || 0);
+  const [
+    topLeft = 0,
+    topRight = topLeft,
+    bottomRight = topLeft,
+    bottomLeft = topRight,
+  ] = parts;
+  return parts.length === 1
+    ? topLeft
+    : { topLeft, topRight, bottomRight, bottomLeft };
 };
 const serialize = (n: number): string | null => (n > 0 ? `${n}px` : null);
 
-const hasBoxStyles = computed(() => padding.value > 0 || radius.value > 0);
+const hasBoxStyles = computed(
+  () => padding.value > 0 || hasRadius(radius.value),
+);
 
 // ── Selection save / restore (same pattern as RichTextColorPicker) ──────────────
 const savedSelection = ref<{ from: number; to: number } | null>(null);
@@ -123,7 +140,10 @@ const apply = () => {
     .focus()
     .setMark("textStyle", {
       padding: serialize(padding.value),
-      borderRadius: serialize(radius.value),
+      borderRadius:
+        typeof radius.value === "object" || hasRadius(radius.value)
+          ? radiusToCss(radius.value)
+          : null,
     })
     .run();
   _suppressSync = false;
@@ -141,7 +161,7 @@ const onPaddingChange = (val: number) => {
   padding.value = val;
   scheduleApply();
 };
-const onRadiusChange = (val: number) => {
+const onRadiusChange = (val: BorderRadius) => {
   radius.value = val;
   scheduleApply();
 };

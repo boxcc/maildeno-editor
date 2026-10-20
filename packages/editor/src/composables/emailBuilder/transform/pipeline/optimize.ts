@@ -1,3 +1,4 @@
+import type { BorderRadius } from "@/utils/borderRadius";
 /**
  * optimize.ts
  * Strips default/noise values from rows, columns, components, and canvas before
@@ -18,7 +19,7 @@ export interface BorderConfig {
   width: number;
   style: string;
   color: string;
-  radius?: number;
+  radius?: BorderRadius;
 }
 
 export interface GradientConfig {

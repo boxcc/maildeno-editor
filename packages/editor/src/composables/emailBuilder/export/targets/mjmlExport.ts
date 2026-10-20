@@ -1,3 +1,4 @@
+import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // export/targets/mjmlExport.ts
 // ─────────────────────────────────────────────────────────────────────────────
 // Owns: mjmlExport
@@ -215,7 +216,7 @@ export const mjmlExport = (deps: Deps) => {
         `box-sizing:border-box`,
         `vertical-align:${col.verticalAlign ?? "middle"}`,
         `border:${col.border.width}px ${col.border.style} ${col.border.color}`,
-        `border-radius:${col.border.radius}px`,
+        `border-radius:${radiusToCss(col.border.radius)}`,
         `overflow:hidden`,
         ...colBgStyles,
       ];
@@ -249,8 +250,8 @@ ${wrappedContent}
 
     const rowBorderCss =
       (row.border?.width ?? 0) > 0
-        ? `border:${row.border.width}px ${row.border.style} ${row.border.color};${row.border?.radius ?? 0}`
-        : `border-radius:${row.border.radius}px;overflow:hidden;`;
+        ? `border:${row.border.width}px ${row.border.style} ${row.border.color};border-radius:${radiusToCss(row.border.radius)};overflow:hidden;`
+        : `border-radius:${radiusToCss(row.border.radius)};overflow:hidden;`;
 
     const rowPad = row.padding
       ? `${row.padding.top ?? 0}px ${row.padding.right ?? 0}px ${row.padding.bottom ?? 0}px ${row.padding.left ?? 0}px`
@@ -261,7 +262,7 @@ ${wrappedContent}
       : "";
 
     const hasColumnRadius = row.columns.some(
-      (col: any) => (col.border?.radius ?? 0) > 0,
+      (col: any) => hasRadius(col.border?.radius ?? 0),
     );
     const needsSeparate = (row.gap ?? 0) > 0 || hasColumnRadius;
 
@@ -383,9 +384,9 @@ ${columnsTd}</tr>
         : "0px";
 
       // ── Row outer td styles ──────────────────────────────────────────────────
-      const hasBorderRadius = (row.border?.radius ?? 0) > 0;
+      const hasBorderRadius = hasRadius(row.border?.radius ?? 0);
       const hasSimpleBorder =
-        (row.border?.width ?? 0) > 0 && (row.border?.radius ?? 0) === 0;
+        (row.border?.width ?? 0) > 0 && !hasRadius(row.border?.radius ?? 0);
 
       const rowTdStyleParts: string[] = [
         ...rowBackgroundStyles,
@@ -402,7 +403,7 @@ ${columnsTd}</tr>
 
       // Prevent background bleed when border-radius is present
       if (hasBorderRadius) {
-        rowTdStyleParts.push(`border-radius:${row.border.radius + 2}px`);
+        rowTdStyleParts.push(`border-radius:${radiusToCss(row.border.radius, 2)}`);
       }
 
       if ((row.minHeight ?? 0) > 0) {
@@ -416,8 +417,8 @@ ${columnsTd}</tr>
       let rowBorderCss = "";
       if ((row.border?.width ?? 0) > 0) {
         rowBorderCss = `border:${row.border.width}px ${row.border.style} ${row.border.color};`;
-        if ((row.border?.radius ?? 0) > 0) {
-          rowBorderCss += `border-radius:${row.border.radius}px;overflow:hidden;`;
+        if (hasRadius(row.border?.radius ?? 0)) {
+          rowBorderCss += `border-radius:${radiusToCss(row.border.radius)};overflow:hidden;`;
         }
       }
 
@@ -446,7 +447,7 @@ ${columnsTd}</tr>
           `vertical-align:${col.verticalAlign ?? "middle"}`,
           ...colBgStyles,
           `border:${col.border?.width ?? 0}px ${col.border?.style ?? "solid"} ${col.border?.color ?? "transparent"}`,
-          `border-radius:${col.border?.radius ?? 0}px`,
+          `border-radius:${radiusToCss(col.border?.radius ?? 0)}`,
           `overflow:hidden`,
           `line-height:0`,
           `font-size:0`,
@@ -476,7 +477,7 @@ ${componentsHtml}
       });
 
       const hasColumnRadius = row.columns.some(
-        (col: any) => (col.border?.radius ?? 0) > 0,
+        (col: any) => hasRadius(col.border?.radius ?? 0),
       );
       const needsSeparate = (row.gap ?? 0) > 0 || hasColumnRadius;
       const innerTable = `<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:${needsSeparate ? "separate" : "collapse"};">

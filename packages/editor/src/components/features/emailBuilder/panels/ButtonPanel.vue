@@ -318,13 +318,9 @@
       />
 
       <!-- min=0: sharp corners (0 px radius) are a valid design choice -->
-      <PropertyNumberSlider
+      <BorderRadiusControl
         label="Border Radius (px)"
         :model-value="displayValue('borderRadius')"
-        :min="0"
-        :max="100"
-        :step="1"
-        unit="px"
         :is-overridden="isOverridden('borderRadius')"
         @update:model-value="setProp('borderRadius', $event)"
         @reset="resetProp('borderRadius')"
@@ -487,6 +483,7 @@ import LinkFieldMergeTags from "./shared/LinkFieldMergeTags.vue";
 import PreviewBadge from "./shared/PreviewBadge.vue";
 import PropertySection from "./ui/PropertySection.vue";
 import PropertyNumberSlider from "./ui/PropertyNumberSlider.vue";
+import BorderRadiusControl from "./ui/BorderRadiusControl.vue";
 import PropertySelect from "./ui/PropertySelect.vue";
 import PropertyAlignment from "./ui/PropertyAlignment.vue";
 import PropertyColor from "./ui/PropertyColor.vue";

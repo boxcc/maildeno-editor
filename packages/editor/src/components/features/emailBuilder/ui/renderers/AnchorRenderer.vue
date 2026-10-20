@@ -54,6 +54,7 @@
 </template>
 
 <script setup lang="ts">
+import { radiusToCss } from "@/utils/borderRadius";
 import { computed } from "vue";
 import { useEmailBuilder } from "@/composables/emailBuilder/core/useEmailBuilder";
 import { useGoogleFonts } from "@/composables/system/useGoogleFonts";
@@ -208,7 +209,7 @@ const innerStyles = computed(() => {
       ...sizeStyles,
       padding: `${p.value.padding.top}px ${p.value.padding.right}px ${p.value.padding.bottom}px ${p.value.padding.left}px`,
       background: resolveBackground(p.value),
-      borderRadius: p.value.borderRadius + "px",
+      borderRadius: radiusToCss(p.value.borderRadius),
       border: `${p.value.border.width}px ${p.value.border.style} ${p.value.border.color}`,
     };
   }

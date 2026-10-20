@@ -1,3 +1,4 @@
+import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // export/targets/htmlExport.ts
 // ─────────────────────────────────────────────────────────────────────────────
 // Owns: buildRowHTML, renderChildren, htmlExport
@@ -233,7 +234,7 @@ export const htmlExport = (deps: Deps) => {
         `box-sizing:border-box`,
         ...colBackgroundStyles,
         `border:${col.border.width}px ${col.border.style} ${col.border.color}`,
-        `border-radius:${col.border.radius}px`,
+        `border-radius:${radiusToCss(col.border.radius)}`,
         `overflow:hidden`,
         `line-height:0`,
         `font-size:0`,
@@ -263,7 +264,7 @@ ${componentsHtml}
     });
 
     const hasColumnRadius = row.columns.some(
-      (col: any) => (col.border?.radius ?? 0) > 0,
+      (col: any) => hasRadius(col.border?.radius ?? 0),
     );
     const needsSeparate = (row.gap ?? 0) > 0 || hasColumnRadius;
     let innerTable = `<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:${needsSeparate ? "separate" : "collapse"};">
@@ -273,11 +274,11 @@ ${columnsHtml}
           </table>`;
 
     // ── Define border flags before building styles ──
-    const hasBorderRadius = (row.border?.radius ?? 0) > 0;
+    const hasBorderRadius = hasRadius(row.border?.radius ?? 0);
 
     const rowTdStyles: string[] = [
       ...rowBackgroundStyles,
-      hasBorderRadius ? `border-radius:${row.border.radius + 2}px` : "",
+      hasBorderRadius ? `border-radius:${radiusToCss(row.border.radius, 2)}` : "",
       `overflow:hidden`,
     ].filter(Boolean);
 

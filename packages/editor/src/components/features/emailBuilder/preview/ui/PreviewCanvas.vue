@@ -147,6 +147,7 @@
 </template>
 
 <script setup lang="ts">
+import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // components/preview/PreviewCanvas.vue
 //
 // Mirrors the real canvas renderer (CanvasRow.vue, CanvasColumn.vue,
@@ -283,7 +284,7 @@ function rowStyles(row: any): Record<string, string> {
   // Border is optional on the row but CanvasRow always reads it.
   if (row.border) {
     styles.border = `${row.border.width ?? 0}px ${row.border.style ?? "solid"} ${row.border.color ?? "transparent"}`;
-    styles.borderRadius = `${row.border.radius ?? 0}px`;
+    styles.borderRadius = radiusToCss(row.border.radius ?? 0);
   }
 
   if ((row.gap ?? 0) > 0) {
@@ -333,13 +334,13 @@ function columnStyles(col: any, row: any): Record<string, string> {
   // square columns, we omit `overflow` so the flex+radius+overflow rendering
   // quirk that hides backgrounds doesn't apply. Same behavior as the real
   // CanvasColumn (which never sets overflow).
-  if (radius > 0) {
+  if (hasRadius(radius)) {
     styles.overflow = "hidden";
   }
 
   if (col.border) {
     styles.border = `${col.border.width ?? 0}px ${col.border.style ?? "solid"} ${col.border.color ?? "transparent"}`;
-    styles.borderRadius = `${radius}px`;
+    styles.borderRadius = radiusToCss(radius);
   }
 
   if (col.backgroundImage) {

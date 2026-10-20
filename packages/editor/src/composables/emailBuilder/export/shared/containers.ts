@@ -1,3 +1,4 @@
+import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // export/shared/containers.ts
 // Unified container wrappers used across HTML and React Email exports.
 // These ensure the "outer-td / inner-div" structure remains identical
@@ -37,9 +38,9 @@ export const wrapWithContainerDiv = (
   const paddingStr = `padding:${padding?.top ?? 0}px ${padding?.right ?? 0}px ${padding?.bottom ?? 0}px ${padding?.left ?? 0}px`;
 
   const hasBorderRadius =
-    border && (border.radius ?? 0) > 0 && border.width > 0;
+    border && hasRadius(border.radius ?? 0) && border.width > 0;
   const hasSimpleBorder =
-    border && border.width > 0 && (border.radius ?? 0) === 0;
+    border && border.width > 0 && !hasRadius(border.radius ?? 0);
 
   // Case 1: No border or simple border (no radius)
   // Background stays on td, border on inner div for consistent rendering
@@ -59,7 +60,7 @@ export const wrapWithContainerDiv = (
 
   // Case 2: Border with radius - need outer wrapper for overflow:hidden
   const outerStyles: string[] = [
-    `border-radius:${border.radius}px`,
+    `border-radius:${radiusToCss(border.radius)}`,
     `overflow:hidden`,
     `line-height:0`,
     `font-size:0`,
@@ -91,9 +92,9 @@ export const wrapWithContainerDivReact = (
   const paddingVal = `${padding?.top ?? 0}px ${padding?.right ?? 0}px ${padding?.bottom ?? 0}px ${padding?.left ?? 0}px`;
 
   const hasBorderRadius =
-    border && (border.radius ?? 0) > 0 && border.width > 0 && applyBorder;
+    border && hasRadius(border.radius ?? 0) && border.width > 0 && applyBorder;
   const hasSimpleBorder =
-    border && border.width > 0 && (border.radius ?? 0) === 0 && applyBorder;
+    border && border.width > 0 && !hasRadius(border.radius ?? 0) && applyBorder;
 
   // Case 1: No border-radius - simple div with padding and optional border
   if (!hasBorderRadius) {
@@ -105,8 +106,8 @@ export const wrapWithContainerDivReact = (
 
     if (hasSimpleBorder) {
       divStyle.border = `${border.width}px ${border.style} ${border.color}`;
-      if ((border.radius ?? 0) > 0) {
-        divStyle.borderRadius = `${border.radius}px`;
+      if (hasRadius(border.radius ?? 0)) {
+        divStyle.borderRadius = radiusToCss(border.radius);
       }
     }
 
@@ -119,7 +120,7 @@ export const wrapWithContainerDivReact = (
 
   // Case 2: Border with radius - need outer wrapper for overflow
   const outerStyle: Record<string, string> = {
-    borderRadius: `${border.radius}px`,
+    borderRadius: radiusToCss(border.radius),
     overflow: "hidden",
     lineHeight: "0",
     fontSize: "0",

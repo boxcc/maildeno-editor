@@ -1,3 +1,4 @@
+import { hasRadius, radiusToCss } from "@/utils/borderRadius";
 // export/targets/reactEmailExport.ts
 // ─────────────────────────────────────────────────────────────────────────────
 // Owns: buildRowJSX, renderChildrenJSX, reactEmailExport
@@ -226,7 +227,7 @@ export const reactEmailExport = (deps: Deps) => {
         boxSizing: "border-box",
         verticalAlign: col.verticalAlign ?? "middle",
         border: `${col.border?.width ?? 0}px ${col.border?.style ?? "solid"} ${col.border?.color ?? "transparent"}`,
-        borderRadius: `${col.border?.radius ?? 0}px`,
+        borderRadius: radiusToCss(col.border?.radius ?? 0),
         overflow: "hidden",
         lineHeight: "0",
         fontSize: "0",
@@ -260,13 +261,13 @@ ${componentsJsx}
 
     const rowBackgroundStylesReact = buildBackgroundStylesReact(row);
 
-    const hasBorderRadius = (row.border?.radius ?? 0) > 0;
+    const hasBorderRadius = hasRadius(row.border?.radius ?? 0);
 
     const rowSectionStyle: Record<string, string> = {
       ...rowBackgroundStylesReact,
       // Only add radius to <Section> when needed — prevents background bleed
       ...(hasBorderRadius
-        ? { borderRadius: `${row.border.radius + 2}px` }
+        ? { borderRadius: radiusToCss(row.border.radius, 2) }
         : {}),
       overflow: "hidden",
     };
