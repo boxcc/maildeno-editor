@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { createServer } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { JSDOM } from "jsdom";
+import ts from "typescript";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const server = await createServer({
@@ -81,17 +82,35 @@ try {
     ]) {
       const button = makeButton({ width, height, icon });
       for (const render of [html, mjml]) {
-        const link = new JSDOM(render(button)).window.document.querySelector(
-          "a",
+        const doc = new JSDOM(render(button)).window.document;
+        const table = doc.querySelector("table.eb-sizing-button-table");
+        assert.ok(table, "Button dimensions must belong to an outer table");
+        assert.equal(table.style.width, width);
+        assert.equal(table.style.height, height);
+        assert.equal(
+          table.getAttribute("width"),
+          width === "auto" ? null : width.replace(/px$/, ""),
         );
-        assert.equal(link.style.width, width);
-        assert.equal(link.style.height, height);
-        assert.equal(link.style.boxSizing, "border-box");
-        assert.ok(link.querySelector('td[valign="middle"]'));
+        const link = table.querySelector("a");
+        assert.equal(link.style.width, "");
+        assert.equal(link.style.padding, "0px");
+        assert.equal(link.style.borderWidth, "0px");
+        const content = link.querySelector("td.eb-sizing-button-content");
+        assert.ok(content, "Padding must stay inside the clickable link");
+        assert.equal(content.style.paddingTop, "12px");
+        assert.equal(content.style.paddingRight, "24px");
+        assert.equal(content.getAttribute("valign"), "middle");
       }
-      assert.ok(react(button).includes(`width: "${width}"`));
-      assert.ok(react(button).includes(`height: "${height}"`));
-      assert.ok(react(button).includes('valign="middle"'));
+      const jsx = react(button);
+      assert.ok(jsx.includes(`width: "${width}"`));
+      assert.ok(jsx.includes(`height: "${height}"`));
+      assert.ok(jsx.includes('valign="middle"'));
+      assert.ok(jsx.includes('className="eb-sizing-button-table"'));
+      const result = ts.transpileModule(`const Email = () => (${jsx});`, {
+        compilerOptions: { jsx: ts.JsxEmit.Preserve },
+        reportDiagnostics: true,
+      });
+      assert.equal(result.diagnostics.length, 0, "React Email JSX must parse");
     }
   }
 
@@ -110,6 +129,26 @@ try {
   const css = mobile(sized, "eb-sizing");
   assert.ok(css.includes("width: 100% !important"));
   assert.ok(css.includes("height: auto !important"));
+  assert.match(css, /\.eb-sizing-button-table \{[^}]*width: 100% !important/);
+  assert.doesNotMatch(css, /\.eb-sizing-link \{[^}]*width:/);
+  const decorated = mobile(
+    makeButton({
+      width: "100%",
+      mobile: {
+        padding: { top: 8, right: 32, bottom: 8, left: 32 },
+        border: { width: 2, style: "solid", color: "#111111" },
+        backgroundColor: "#ff0000",
+      },
+    }),
+    "eb-sizing",
+  );
+  assert.match(decorated, /\.eb-sizing-button-content \{[^}]*padding:/);
+  assert.match(decorated, /\.eb-sizing-button-table \{[^}]*border:/);
+  assert.match(decorated, /\.eb-sizing-button-table \{[^}]*background-color:/);
+  assert.doesNotMatch(
+    decorated,
+    /\.eb-sizing-link \{[^}]*(?:padding:|border:|background-color:)/,
+  );
   assert.ok(
     !mobile({ ...sized, componentType: "anchor" }, "eb-sizing").includes(
       "width:",

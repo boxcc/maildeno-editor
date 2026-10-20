@@ -1,4 +1,7 @@
-import { normalizeButtonDimension } from "@/blocks/buttonSizing";
+import {
+  getButtonSizeStyles,
+  normalizeButtonDimension,
+} from "@/blocks/buttonSizing";
 
 export const useEmailExportMobileStyles = () => {
   const emailMobileStyles = (comp: any, uid: string): string => {
@@ -22,6 +25,8 @@ export const useEmailExportMobileStyles = () => {
 
     const anchorTypes = new Set(["button", "anchor"]);
     const isAnchorType = anchorTypes.has(compType);
+    const isTableButton =
+      compType === "button" && !!getButtonSizeStyles(comp.props).width;
 
     const tdTypes = new Set(["menu", "socials"]);
     const isTdType = tdTypes.has(compType);
@@ -142,7 +147,7 @@ export const useEmailExportMobileStyles = () => {
       );
 
       // Gradient-aware background — pushes 0, 1, or 2 declarations
-      target.push(...resolveMobileBackground());
+      if (!isTableButton) target.push(...resolveMobileBackground());
     };
 
     /* ================================
@@ -156,8 +161,7 @@ export const useEmailExportMobileStyles = () => {
       );
     }
 
-    // Padding lives on the container for everything except button/anchor | menu/social
-    // (those apply it directly on the <a> tag further below)
+    // Buttons, anchors, menus and socials apply padding to their inner elements.
     if (m.padding && !isAnchorType && !isTdType) {
       const pd = m.padding;
       containerRules.push(
@@ -173,26 +177,28 @@ export const useEmailExportMobileStyles = () => {
        TYPE-SPECIFIC LOGIC
     ================================= */
 
-    // ── Button / Anchor — visual styles target the <a> tag ──────────────────
+    // ── Button / Anchor ────────────────────────────────────────────────────
     if (isAnchorType) {
       pushTextStyles(elementRules);
+      const boxRules = isTableButton ? resolveMobileBackground() : elementRules;
 
-      // Button/anchor padding belongs on the <a> (it defines the clickable hit area)
+      // Sized buttons keep padding in the content cell inside the link.
       if (m.padding) {
         const pd = m.padding;
-        elementRules.push(
-          `padding: ${pd.top}px ${pd.right}px ${pd.bottom}px ${pd.left}px !important`,
-        );
+        const rule = `padding: ${pd.top}px ${pd.right}px ${pd.bottom}px ${pd.left}px !important`;
+        if (isTableButton)
+          childRules.push(`.${uid}-button-content { ${rule} }`);
+        else elementRules.push(rule);
       }
 
       if (m.border) {
         const br = m.border;
-        elementRules.push(
+        boxRules.push(
           `border: ${br.width}px ${br.style} ${br.color} !important`,
         );
       }
       if (m.borderRadius != null) {
-        elementRules.push(`border-radius: ${m.borderRadius}px !important`);
+        boxRules.push(`border-radius: ${m.borderRadius}px !important`);
       }
 
       // ── Icon-button text cell ────────────────────────────────────────────
@@ -209,7 +215,7 @@ export const useEmailExportMobileStyles = () => {
       if (compType === "button") {
         for (const key of ["width", "height"] as const) {
           if (m[key] != null) {
-            elementRules.push(
+            boxRules.push(
               `${key}: ${normalizeButtonDimension(m[key])} !important`,
             );
           }
@@ -255,6 +261,9 @@ export const useEmailExportMobileStyles = () => {
         if (textCellRules.length > 0) {
           childRules.push(`.${uid}-text { ${textCellRules.join("; ")} }`);
         }
+      }
+      if (isTableButton && boxRules.length > 0) {
+        childRules.push(`.${uid}-button-table { ${boxRules.join("; ")} }`);
       }
     }
 
