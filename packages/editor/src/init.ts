@@ -132,6 +132,8 @@ export interface EditorHandle {
    * mechanism that applies it on initial mount. Calling this again after
    * mount is the actual "live" part, not just initial configuration. */
   setTheme(theme: ThemeOptions): void;
+  /** Updates the name used by the header, saves and exports. Empty clears it. */
+  setTemplateName(name: string): void;
   /** These four call EmailEditor.vue's defineExpose'd methods, which Vue's
    * own defineCustomElement implementation forwards directly onto the
    * custom element instance (confirmed: _instance.exposed is read and
@@ -221,6 +223,9 @@ export async function init(options: InitOptions): Promise<EditorHandle> {
       on: (_event, handler) => mount.addSaveHandler(handler),
       off: (_event, handler) => mount.removeSaveHandler(handler),
       setTheme: (theme) => mount.setProp("theme", theme),
+      setTemplateName: (name) => {
+        call<void>("setTemplateName", name);
+      },
       getHtml: (mode = "prune") => call<string>("getHtml", mode),
       getMjml: (mode = "prune") => call<string>("getMjml", mode),
       getReactEmail: (mode = "prune") => call<string>("getReactEmail", mode),
@@ -251,6 +256,7 @@ export async function init(options: InitOptions): Promise<EditorHandle> {
     versions?: boolean;
     saveHandler?: (payload: { templateId: string | null }) => void;
     assistant?: AssistantMount;
+    setTemplateName?: (name: string) => void;
     getHtml?: (mode?: "prune" | "wrap") => string | null;
     getMjml?: (mode?: "prune" | "wrap") => string | null;
     getReactEmail?: (mode?: "prune" | "wrap") => string | null;
@@ -336,6 +342,9 @@ export async function init(options: InitOptions): Promise<EditorHandle> {
     },
     setTheme(theme) {
       el.theme = theme;
+    },
+    setTemplateName(name) {
+      el.setTemplateName?.(name);
     },
     getHtml(mode = "prune") {
       return el.getHtml ? el.getHtml(mode) : null;

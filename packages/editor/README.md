@@ -78,6 +78,7 @@ export default function Editor() {
 | `element` | The underlying `<maildeno-editor>` DOM node. |
 | `on(event, fn)` / `off(event, fn)` | Subscribe to editor events. Currently `"save"`. Only fires if `onSave` was passed to `init()` at mount time — subscribing after the fact doesn't retroactively enable saving or reveal a button that was never rendered. |
 | `setTheme(theme)` | Re-theme live, any time after mount. |
+| `setTemplateName(name)` | Update the name shown in the header and used for saves and exports. Pass `""` to clear it. |
 | `getHtml(mode?)` | Current template as an HTML email string, or `null` if empty. |
 | `getMjml(mode?)` | Current template as MJML. |
 | `getReactEmail(mode?)` | Current template as React Email `.tsx` source. |

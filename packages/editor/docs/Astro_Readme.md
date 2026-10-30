@@ -103,6 +103,7 @@ export const POST: APIRoute = async ({ request }) => {
 | `element` | The underlying `<maildeno-editor>` DOM node. |
 | `on(event, fn)` / `off(event, fn)` | Subscribe to editor events. Currently `"save"`. |
 | `setTheme(theme)` | Re-theme live, any time after mount. |
+| `setTemplateName(name)` | Update the name shown in the header and used for saves and exports. Pass `""` to clear it. |
 | `getHtml(mode?)` | Current template as an HTML email string, or `null` if empty. |
 | `getMjml(mode?)` | Current template as MJML. |
 | `getReactEmail(mode?)` | Current template as React Email `.tsx` source. |

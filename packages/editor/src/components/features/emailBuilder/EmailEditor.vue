@@ -650,6 +650,9 @@ const editorWriteApi: EditorWriteApi = {
 };
 
 defineExpose({
+  setTemplateName: (name: string) => {
+    savedTemplateName.value = name || null;
+  },
   getHtml: (mode: "prune" | "wrap" = "prune") =>
     getExportedHTML(mode, savedTemplateName.value ?? undefined),
   getMjml: (mode: "prune" | "wrap" = "prune") =>
