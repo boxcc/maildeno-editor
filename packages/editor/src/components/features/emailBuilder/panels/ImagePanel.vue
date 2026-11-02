@@ -121,17 +121,60 @@
 
     <!-- Layout -->
     <PropertySection title="Layout">
-      <PropertyNumberSlider
-        label="Width (%)"
-        :model-value="displayValue('width')"
-        :min="1"
-        :max="100"
-        :step="1"
-        unit="%"
-        :is-overridden="isOverridden('width')"
-        @update:model-value="setProp('width', $event)"
-        @reset="resetProp('width')"
-      />
+      <div v-for="dimension in imageDimensions" :key="dimension.key">
+        <div class="flex items-center justify-between mb-1.5">
+          <label
+            :for="`${component.id}-${dimension.key}`"
+            class="flex items-center gap-1.5 text-xs font-medium text-(--md-text-muted)"
+          >
+            {{ dimension.label }}
+            <OverrideBadge :show="isOverridden(dimension.key)" />
+          </label>
+          <button
+            v-if="isOverridden(dimension.key)"
+            type="button"
+            class="text-xs text-(--md-selection-fg) hover:opacity-80"
+            @click="resetProp(dimension.key)"
+          >
+            ↩ Reset
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <InputText
+            v-if="dimensionUnit(dimension.key) !== 'auto'"
+            :key="dimensionUnit(dimension.key)"
+            :id="`${component.id}-${dimension.key}`"
+            :model-value="parseFloat(dimensionValue(dimension.key))"
+            type="number"
+            min="0"
+            step="any"
+            class="min-w-0 flex-1"
+            @input="($event.target as HTMLInputElement).setCustomValidity('')"
+            @change="onDimensionChange(dimension.key, $event)"
+          />
+          <div
+            role="group"
+            :aria-label="`${dimension.label} unit`"
+            class="flex gap-1 shrink-0"
+          >
+            <button
+              v-for="unit in dimension.units"
+              :key="unit"
+              type="button"
+              :aria-pressed="dimensionUnit(dimension.key) === unit"
+              class="px-2 py-1.5 text-xs rounded border transition-colors"
+              :class="
+                dimensionUnit(dimension.key) === unit
+                  ? 'bg-(--md-selection-bg) border-(--md-selection) text-(--md-selection-fg)'
+                  : 'border-(--md-border) text-(--md-text-subtle) hover:border-(--md-border-strong)'
+              "
+              @click="onDimensionUnitChange(dimension.key, unit)"
+            >
+              {{ unit }}
+            </button>
+          </div>
+        </div>
+      </div>
       <BorderRadiusControl
         label="Border Radius (px)"
         :model-value="displayValue('borderRadius')"
@@ -217,6 +260,7 @@ import { resolveString } from "@/composables/emailBuilder/core/merge-tags/mergeT
 import { useImageUploader } from "@/composables/system/useImageUpload";
 
 import InputText from "@/components/ui/primitives/InputText.vue";
+import { normalizeImageDimension } from "@/blocks/imageSizing";
 
 import Loading from "@/components/ui/Loading.vue";
 import OverrideBadge from "./shared/OverrideBadge.vue";
@@ -224,7 +268,6 @@ import DeviceTabs from "./shared/DeviceTabs.vue";
 import LinkFieldMergeTags from "./shared/LinkFieldMergeTags.vue";
 import PreviewBadge from "./shared/PreviewBadge.vue";
 import PropertySection from "./ui/PropertySection.vue";
-import PropertyNumberSlider from "./ui/PropertyNumberSlider.vue";
 import BorderRadiusControl from "./ui/BorderRadiusControl.vue";
 import BorderControl from "./ui/BorderControl.vue";
 import PropertyAlignment from "./ui/PropertyAlignment.vue";
@@ -274,6 +317,41 @@ const {
 } = useComponentStyleEditor(component, editMode);
 
 // ─── Props mutation handlers (each calls saveToHistory) ─────────────────
+
+const imageDimensions = [
+  { key: "width", label: "Width", units: ["%", "px", "auto"] },
+  { key: "height", label: "Height", units: ["px", "auto"] },
+] satisfies { key: "width" | "height"; label: string; units: string[] }[];
+
+const dimensionValue = (key: "width" | "height") =>
+  normalizeImageDimension(displayValue(key), key);
+
+const dimensionUnit = (key: "width" | "height") => {
+  const value = dimensionValue(key);
+  return value === "auto" ? "auto" : value.endsWith("px") ? "px" : "%";
+};
+
+const onDimensionUnitChange = (key: "width" | "height", unit: string) => {
+  const value = dimensionValue(key);
+  setProp(
+    key,
+    unit === "auto"
+      ? "auto"
+      : `${value === "auto" ? 100 : parseFloat(value)}${unit}`,
+  );
+};
+
+const onDimensionChange = (key: "width" | "height", event: Event) => {
+  const input = event.target as HTMLInputElement;
+  const value = `${input.valueAsNumber}${dimensionUnit(key)}`;
+  input.setCustomValidity(
+    !input.value || normalizeImageDimension(value, key) !== value
+      ? "Enter a non-negative number."
+      : "",
+  );
+  if (!input.reportValidity()) return;
+  setProp(key, value);
+};
 
 const onSrcInput = (value: string) => {
   component.value.props.src = value.trim();

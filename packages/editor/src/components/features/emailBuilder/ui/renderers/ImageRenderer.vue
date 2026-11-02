@@ -6,14 +6,12 @@
       target="_blank"
       rel="noopener noreferrer nofollow"
       :style="{
-        display: 'inline-block',
-        width: `${p.width}%`,
         textDecoration: 'none',
         lineHeight: 0,
       }"
       @click="handleLinkClick"
     >
-      <img :src="resolvedSrc" :alt="resolvedAlt" :style="linkedImageStyles" />
+      <img :src="resolvedSrc" :alt="resolvedAlt" :style="imageStyles" />
     </a>
 
     <img v-else :src="resolvedSrc" :alt="resolvedAlt" :style="imageStyles" />
@@ -23,6 +21,7 @@
 <script setup lang="ts">
 import { borderStyles } from "@/utils/border";
 import { radiusToCss } from "@/utils/borderRadius";
+import { normalizeImageDimension } from "@/blocks/imageSizing";
 import { computed, type CSSProperties } from "vue";
 import { useEmailBuilder } from "@/composables/emailBuilder/core/useEmailBuilder";
 import { resolveString } from "@/composables/emailBuilder/core/merge-tags/mergeTagDefinitions";
@@ -90,18 +89,12 @@ const containerStyles = computed(() => ({
 }));
 
 const imageStyles = computed<CSSProperties>(() => ({
-  width: `${p.value.width}%`,
-  height: p.value.height === "auto" ? "auto" : `${p.value.height}px`,
-  objectFit: "cover",
+  width: normalizeImageDimension(p.value.width, "width"),
+  height: normalizeImageDimension(p.value.height, "height"),
   borderRadius: radiusToCss(p.value.borderRadius),
   ...borderStyles(p.value.border),
   display: "inline-block",
   verticalAlign: "top", // or "middle" / "bottom"
-}));
-
-const linkedImageStyles = computed<CSSProperties>(() => ({
-  ...imageStyles.value,
-  width: "100%",
 }));
 
 // ─── Visibility ───────────────────────────────────────────────────────────────

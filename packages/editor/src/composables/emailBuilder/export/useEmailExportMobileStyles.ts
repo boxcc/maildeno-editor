@@ -1,5 +1,6 @@
 import { borderToCss } from "@/utils/border";
 import { radiusToCss } from "@/utils/borderRadius";
+import { normalizeImageDimension } from "@/blocks/imageSizing";
 import {
   getButtonSizeStyles,
   normalizeButtonDimension,
@@ -271,11 +272,13 @@ export const useEmailExportMobileStyles = () => {
 
     // ── Image ────────────────────────────────────────────────────────────────
     else if (compType === "image") {
-      addRule(elementRules, m.width != null && `width: ${m.width}% !important`);
-      addRule(
-        elementRules,
-        m.height != null && `height: ${m.height} !important`,
-      );
+      for (const key of ["width", "height"] as const) {
+        if (m[key] != null) {
+          elementRules.push(
+            `${key}: ${normalizeImageDimension(m[key], key)} !important`,
+          );
+        }
+      }
       addRule(
         elementRules,
         m.borderRadius != null &&
