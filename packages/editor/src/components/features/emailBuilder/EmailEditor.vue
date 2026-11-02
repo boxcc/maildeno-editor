@@ -582,7 +582,7 @@ const {
   getSelection,
   setSelection,
   onChange,
-} = provideEmailBuilder(storageAdapter, infoDialog);
+} = provideEmailBuilder(storageAdapter, infoDialog, canSave);
 provideSavedRowsPanel();
 provideProductRows(storageAdapter);
 

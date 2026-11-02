@@ -28,6 +28,7 @@ import {
   provide,
   inject,
   type InjectionKey,
+  type Ref,
 } from "vue";
 import { normalizeTemplateSnapshot } from "../export/targets/templateSnapshot";
 import { useCanSave } from "@/adapters";
@@ -82,17 +83,16 @@ const EmailBuilderKey: InjectionKey<EmailBuilderInstance> = Symbol(
 );
 
 /** Called once, at the EmailEditor root. Do not call from any other file.
- * storageAdapterInstance/infoDialogInstance are the already-created
- * return values of provideStorageAdapter()/provideInfoDialog() — see the
- * comment on useEmailExportEngine's matching parameter for why these are
- * passed directly rather than re-injected internally. */
+ * Pass dependencies directly: the root cannot inject its own provided values. */
 export function provideEmailBuilder(
   storageAdapterInstance?: EditorStorageAdapter,
   infoDialogInstance?: ReturnType<typeof useInfoDialog>,
+  canSaveInstance?: Ref<boolean>,
 ) {
   const instance = createEmailBuilderInstance(
     storageAdapterInstance,
     infoDialogInstance,
+    canSaveInstance,
   );
   provide(EmailBuilderKey, instance);
   return instance;
@@ -121,6 +121,7 @@ export const useEmailBuilder = (): EmailBuilderInstance => {
 function createEmailBuilderInstance(
   storageAdapterInstance?: EditorStorageAdapter,
   infoDialogInstance?: ReturnType<typeof useInfoDialog>,
+  canSaveInstance?: Ref<boolean>,
 ) {
   const storageAdapter = storageAdapterInstance ?? useStorageAdapter();
   const confirm = useConfirm();
@@ -298,7 +299,7 @@ function createEmailBuilderInstance(
   }
 
   // Read once at construction: the host's adapter can't change mid-instance.
-  const canSave = useCanSave();
+  const canSave = canSaveInstance ?? useCanSave();
 
   // ── Auto-save ───────────────────────────────────────────────────────────────
 
